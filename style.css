@@ -154,3 +154,26 @@ footer .mono{font-size:.72rem}
 .chip.drag{position:fixed;z-index:9999;pointer-events:none;box-shadow:0 10px 28px rgba(0,0,0,.55);cursor:grabbing;border-color:var(--warn)}
 .chip.placed{cursor:default;border-color:var(--accent);color:var(--accent)}
 .dzhint{pointer-events:none}
+.fixwrap .q{font-size:.9rem;margin:2px 0 4px;color:var(--fg)}
+.code{background:#0a0e14;border:1px solid var(--line);border-radius:8px;padding:8px 0;margin:10px 0;overflow-x:auto}
+.ln{display:flex;gap:12px;padding:3px 12px;cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:.82rem;white-space:pre;line-height:1.55}
+.ln:hover{background:rgba(255,255,255,.045)}
+.ln .lno{color:var(--muted);opacity:.55;user-select:none;min-width:1.4em;text-align:right}
+.ln .lc{color:#cdd6e4}
+.ln.bad{background:rgba(248,113,113,.16);box-shadow:inset 3px 0 0 var(--danger)}
+.ln.bad .lc{color:#ffd3d3}
+.ln.miss{background:rgba(240,180,41,.16)}
+.fixpick{margin-top:12px}
+.fixcard{border:1px solid var(--line);border-radius:8px;padding:10px 12px;margin:7px 0;cursor:pointer;background:var(--surface);overflow-x:auto}
+.fixcard code{font-family:'JetBrains Mono',monospace;font-size:.79rem;color:#cdd6e4;white-space:pre-wrap;word-break:break-word;display:block}
+.fixcard:hover{border-color:var(--warn)}
+.fixcard.ok{border-color:var(--accent);background:rgba(54,211,153,.08)}
+.fixcard.ok code{color:var(--accent)}
+.fixcard.wrong{border-color:var(--danger);opacity:.55}
+.scene{display:flex;gap:12px;align-items:flex-start;background:linear-gradient(180deg,rgba(54,211,153,.06),rgba(54,211,153,.02));border:1px solid var(--line);border-left:3px solid var(--accent);border-radius:10px;padding:13px 16px;margin:14px 0 10px}
+.scene .sl{flex:none;font-weight:800;color:var(--accent);font-size:.82rem;letter-spacing:.04em;padding-top:1px}
+.scene p{margin:0;font-size:.95rem;line-height:1.7;color:var(--fg)}
+.scene b{color:var(--fg);font-weight:700;border-bottom:1px dashed var(--accent)}
+.hintbox{display:flex;gap:10px;align-items:baseline;background:rgba(240,180,41,.08);border:1px dashed var(--warn);border-radius:9px;padding:10px 14px;margin:10px 0;font-size:.9rem;line-height:1.65;color:var(--fg)}
+.hintbox .hl{flex:none;font-weight:800;color:var(--warn);font-size:.82rem}
+.hintbox code{background:rgba(255,255,255,.07);padding:1px 6px;border-radius:5px;font-family:'JetBrains Mono',monospace;font-size:.86em}

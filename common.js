@@ -28,40 +28,46 @@
     var el=document.getElementById("success");if(el){el.classList.add("show");el.scrollIntoView({behavior:"smooth",block:"center"});}};
   // 兩階段 UI 輔助
   function show(id,html){var e=document.getElementById(id);if(e){if(html!=null)e.innerHTML=html;e.classList.add("show");}}
-  function renderFix(wrap,opts,onCorrect){
-    var h='<div class="q">🔧 把你覺得<b>真正能修好這個漏洞</b>的做法，拖進下方框裡送出：</div>';
-    h+='<div class="dz" id="dz"><span class="dzhint">把正確的修復做法拖來這裡放開</span></div>';
-    h+='<div class="pool" id="pool"></div><div class="fixfb" id="fixfb"></div>';
+  function esc(s){return String(s).replace(/[&<>"']/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c];});}
+  function renderCodeFix(wrap,cf,onCorrect){
+    var h='<div class="q">🔍 這是這一關後端<b>有漏洞的程式碼</b>（'+esc(cf.lang)+'）。先<b>點出造成漏洞的那一行</b>：</div>';
+    h+='<div class="code" id="code"></div>';
+    h+='<div class="fixpick" id="fixpick" hidden></div><div class="fixfb" id="fixfb"></div>';
     wrap.innerHTML=h;wrap.hidden=false;
-    var pool=document.getElementById("pool"),dz=document.getElementById("dz"),fb=document.getElementById("fixfb"),done=false;
-    var order=opts.map(function(o,i){return{t:o[0],ok:!!o[1]};});
-    for(var k=order.length-1;k>0;k--){var j=Math.floor(Math.random()*(k+1)),tmp=order[k];order[k]=order[j];order[j]=tmp;}
-    function hit(x,y){var r=dz.getBoundingClientRect();return x>=r.left&&x<=r.right&&y>=r.top&&y<=r.bottom;}
-    function drop(el){
-      if(el.getAttribute("data-ok")==="1"){done=true;dz.classList.remove("over");dz.classList.add("ok");dz.innerHTML="";dz.appendChild(el);el.className="chip placed";
-        fb.className="fixfb ok";fb.textContent="✓ 正確！正在套用這個修復…";setTimeout(function(){wrap.hidden=true;onCorrect();},450);}
-      else{fb.className="fixfb no";fb.textContent="✗ 這個做法擋不住這種攻擊，再想想。";dz.classList.add("shake");setTimeout(function(){dz.classList.remove("shake");},380);}
+    var code=document.getElementById("code"),pick=document.getElementById("fixpick"),fb=document.getElementById("fixfb"),lineDone=false;
+    cf.lines.forEach(function(ln,i){
+      var row=document.createElement("div");row.className="ln";
+      row.innerHTML='<span class="lno">'+(i+1)+'</span><span class="lc">'+esc(ln)+'</span>';
+      row.onclick=function(){
+        if(lineDone)return;
+        if(i===cf.bad){lineDone=true;row.classList.add("bad");
+          fb.className="fixfb ok";fb.textContent="✓ 沒錯，問題就在這一行！接著選出正確的修法。";showPick();}
+        else{row.classList.add("miss");setTimeout(function(){row.classList.remove("miss");},520);
+          fb.className="fixfb no";fb.textContent="✗ 這一行沒問題，再找找。";}
+      };
+      code.appendChild(row);
+    });
+    function showPick(){
+      var order=cf.fixes.map(function(f){return{t:f[0],ok:!!f[1]};});
+      for(var k=order.length-1;k>0;k--){var j=Math.floor(Math.random()*(k+1)),tmp=order[k];order[k]=order[j];order[j]=tmp;}
+      var html='<div class="q">🔧 這一行該怎麼改才真正安全？點一個：</div>';pick.innerHTML=html;
+      order.forEach(function(o){var b=document.createElement("div");b.className="fixcard";b.setAttribute("data-ok",o.ok?"1":"0");
+        b.innerHTML='<code>'+esc(o.t)+'</code>';
+        b.onclick=function(){
+          if(pick.classList.contains("done"))return;
+          if(o.ok){pick.classList.add("done");b.classList.add("ok");
+            fb.className="fixfb ok";fb.textContent="✓ 正確！正在套用這個修法…";setTimeout(function(){wrap.hidden=true;onCorrect();},550);}
+          else{b.classList.add("wrong");fb.className="fixfb no";fb.textContent="✗ 這個改法擋不住這種攻擊，再想想。";}
+        };
+        pick.appendChild(b);});
+      pick.hidden=false;
     }
-    function makeDraggable(el){el.addEventListener("pointerdown",function(e){
-      if(done)return;e.preventDefault();
-      var rect=el.getBoundingClientRect(),ghost=el.cloneNode(true);
-      ghost.className="chip drag";ghost.style.width=rect.width+"px";document.body.appendChild(ghost);
-      var ox=e.clientX-rect.left,oy=e.clientY-rect.top;
-      function put(x,y){ghost.style.left=(x-ox)+"px";ghost.style.top=(y-oy)+"px";}
-      put(e.clientX,e.clientY);el.classList.add("hold");
-      function mv(ev){put(ev.clientX,ev.clientY);dz.classList.toggle("over",hit(ev.clientX,ev.clientY));}
-      function up(ev){document.removeEventListener("pointermove",mv);document.removeEventListener("pointerup",up);
-        ghost.remove();el.classList.remove("hold");dz.classList.remove("over");if(hit(ev.clientX,ev.clientY))drop(el);}
-      document.addEventListener("pointermove",mv);document.addEventListener("pointerup",up);
-    });}
-    order.forEach(function(it){var el=document.createElement("div");el.className="chip";el.textContent=it.t;
-      el.setAttribute("data-ok",it.ok?"1":"0");pool.appendChild(el);makeDraggable(el);});
   }
   window.vulnUI={
     found:function(stepHTML){var a=document.getElementById("ph1"),b=document.getElementById("ph2");
       if(a)a.className="phase done";if(b)b.className="phase active";show("step",stepHTML);
       var wrap=document.getElementById("fixwrap");
-      if(wrap&&window.FIXOPTS&&window.FIXOPTS.length){renderFix(wrap,window.FIXOPTS,function(){var f=document.getElementById("fix");if(f)f.click();});}
+      if(wrap&&window.CODEFIX&&window.CODEFIX.lines){renderCodeFix(wrap,window.CODEFIX,function(){var f=document.getElementById("fix");if(f)f.click();});}
       else{var f=document.getElementById("fix");if(f)f.hidden=false;}},
     fixApplied:function(modeText,stepHTML){var m=document.getElementById("mode"),f=document.getElementById("fix");
       if(m){m.className="modebar safe";m.innerHTML=modeText;}if(f)f.hidden=true;show("step",stepHTML);},
