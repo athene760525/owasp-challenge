@@ -16,12 +16,18 @@
 </div></div><div class="ptrack"><div class="pfill" id="pfill"></div></div></header>
 <main class="wrap">
   <div class="lvhead"><div class="lc">A02</div><div><div class="lt">安全設定錯誤</div><div class="le">Security Misconfiguration</div></div></div>
-  <div class="task"><div class="tl">任務目標</div><p>這個網站上線時忘了關掉一些東西。你的目標是：<b>找出不該公開的檔案，從中取得資料庫密碼。</b>（偵查小技巧：很多網站的 <code>robots.txt</code> 會不小心列出不想被看到的路徑。）</p></div>
-  <div class="sandbox"><div class="app-title">🗂️ 檔案瀏覽（輸入路徑開啟）</div>
-<div class="app-sub">http://school.edu/<span style="color:var(--fg)">?</span></div>
-<label class="fld">路徑</label><input id="path" type="text" value="robots.txt" autocomplete="off" spellcheck="false">
-<div class="btnrow"><button class="btn" id="go">開啟</button></div>
-<div class="term" id="out">［輸入路徑後按「開啟」］</div></div>
+  <div class="task"><div class="tl">任務目標</div><p>這個網站上線時忘了關掉一些開發用的東西。你的目標是：<b>找出不該公開的檔案，從中取得資料庫密碼。</b>先看一下已經幫你開好的 <code>robots.txt</code>——它不小心列出了幾條「不想被看到」的路徑，<b>點開它們</b>看看哪個藏著密碼。</p></div>
+  <div class="sandbox">
+    <div class="app-title">🗂️ 檔案瀏覽器</div>
+    <div class="app-sub">在網址列輸入路徑開啟，或直接點下方找到的連結。</div>
+    <div style="display:flex;border:1px solid var(--line);border-radius:9px;overflow:hidden;font-family:var(--font-mono);margin-top:6px">
+      <span style="background:var(--surface-2);color:var(--muted);padding:10px 2px 10px 12px;white-space:nowrap">school.edu/</span>
+      <input id="path" type="text" value="robots.txt" style="border:none;border-radius:0" autocomplete="off" spellcheck="false">
+    </div>
+    <div class="btnrow"><button class="btn" id="go">開啟</button></div>
+    <div id="links" class="pwlist" style="margin-top:4px"></div>
+    <div class="term" id="out">［開啟檔案］</div>
+  </div>
   <div class="success" id="success">
     <h3>✓ 挑戰成功</h3>
     <div class="flag">FLAG{m1sc0nf1g_3xp0s3d}</div>
@@ -34,20 +40,35 @@
 <script src="common.js"></script>
 <script>
 renderProgress();
-(function(){ var FILES={
-"robots.txt":"User-agent: *\nDisallow: /config.php.bak\nDisallow: /.git/\nDisallow: /backup.sql",
-"config.php.bak":"<?php\n$db_host=\"localhost\";\n$db_user=\"root\";\n$db_pass=\"FLAG{m1sc0nf1g_3xp0s3d}\";",
-".git/config":"[core] repositoryformatversion=0\n[remote \"origin\"] url=git@school.edu:web.git\n（整個原始碼版控資料都在這）",
-"backup.sql":"-- MySQL dump\nINSERT INTO users VALUES (1,\"admin\",\"...\");",
-"index.php":"（正常的首頁程式，沒什麼特別）"};
-function esc(s){return s.replace(/[&<>]/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;"}[c];});}
-document.getElementById("go").onclick=function(){
- var p=document.getElementById("path").value.trim().replace(/^\//,""),out=document.getElementById("out");
- var f=FILES[p];
- if(f===undefined){out.textContent="404 Not Found";return;}
- out.innerHTML=esc(f);
- if(p==="config.php.bak") markSolved();
-}; })();
+(function(){
+  var FILES={
+    "robots.txt":"User-agent: *\nDisallow: /config.php.bak\nDisallow: /.git/\nDisallow: /backup.sql",
+    "config.php.bak":"<?php\n$db_host=\"localhost\";\n$db_user=\"root\";\n$db_pass=\"FLAG{m1sc0nf1g_3xp0s3d}\";",
+    ".git/config":"[core] repositoryformatversion=0\n[remote \"origin\"] url=git@school.edu:web.git\n（整個原始碼的版控資料都在這）",
+    "backup.sql":"-- MySQL dump\nINSERT INTO users VALUES (1,\"admin\",\"...\");",
+    "index.php":"（正常的首頁程式，沒什麼特別）"};
+  // robots.txt 洩漏的路徑 → 對應可開啟的真實檔案
+  var LEAKED=[["/config.php.bak","config.php.bak"],["/.git/",".git/config"],["/backup.sql","backup.sql"]];
+  var out=document.getElementById("out"), links=document.getElementById("links"), pathIn=document.getElementById("path");
+  function esc(s){return s.replace(/[&<>]/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;"}[c];});}
+  function openFile(p){
+    p=String(p).trim().replace(/^\//,""); pathIn.value=p;
+    var f=FILES[p]; links.innerHTML="";
+    if(f===undefined){ out.textContent="404 Not Found"; return; }
+    out.innerHTML=esc(f);
+    if(p==="robots.txt"){
+      LEAKED.forEach(function(d){
+        var b=document.createElement("button");
+        b.textContent="🔗 開啟 "+d[0];
+        b.onclick=function(){ openFile(d[1]); };
+        links.appendChild(b);
+      });
+    }
+    if(p==="config.php.bak") markSolved();
+  }
+  document.getElementById("go").onclick=function(){ openFile(pathIn.value); };
+  openFile("robots.txt"); // 一進關先開好 robots.txt，露出可點連結
+})();
 </script>
 </body>
 </html>
