@@ -1,4 +1,4 @@
-/* OWASP Top 10 CTF — 兩階段(找漏洞→修漏洞)。網頁只負責動手,詳細修復說明在簡報。 */
+/* OWASP Top 10 資安實作 — 兩階段(找漏洞→修漏洞)。網頁只負責動手,詳細修復說明在簡報。 */
 (function(){
   "use strict";
   window.LEVELS=[
@@ -28,10 +28,54 @@
     var el=document.getElementById("success");if(el){el.classList.add("show");el.scrollIntoView({behavior:"smooth",block:"center"});}};
   // 兩階段 UI 輔助
   function show(id,html){var e=document.getElementById(id);if(e){if(html!=null)e.innerHTML=html;e.classList.add("show");}}
+  function esc(s){return String(s).replace(/[&<>"']/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c];});}
+  function fmtcode(ln){ln=String(ln);var t=ln.replace(/^\s+/,"");
+    if(t.indexOf("//")===0||t.indexOf("#")===0)return '<span class="cmt">'+esc(ln)+'</span>';
+    var m=ln.match(/^([\s\S]*?)(\s+(?:\/\/|#)[\s\S]*)$/);
+    if(m)return '<span class="lc">'+esc(m[1])+'</span><span class="cmt">'+esc(m[2])+'</span>';
+    return '<span class="lc">'+esc(ln)+'</span>';}
+  function renderCodeFix(wrap,cf,onCorrect){
+    var h='<div class="q">🔍 這是這一關後端<b>有漏洞的程式碼</b>（'+esc(cf.lang)+'）。先<b>點出造成漏洞的那一行</b>：</div>';
+    h+='<div class="code" id="code"></div>';
+    h+='<div class="fixpick" id="fixpick" hidden></div><div class="fixfb" id="fixfb"></div>';
+    wrap.innerHTML=h;wrap.hidden=false;
+    var code=document.getElementById("code"),pick=document.getElementById("fixpick"),fb=document.getElementById("fixfb"),lineDone=false;
+    cf.lines.forEach(function(ln,i){
+      var row=document.createElement("div");row.className="ln";
+      row.innerHTML='<span class="lno">'+(i+1)+'</span>'+fmtcode(ln);
+      row.onclick=function(){
+        if(lineDone)return;
+        if(i===cf.bad){lineDone=true;row.classList.add("bad");
+          fb.className="fixfb ok";fb.textContent="✓ 沒錯，問題就在這一行！接著選出正確的修法。";showPick();}
+        else{row.classList.add("miss");setTimeout(function(){row.classList.remove("miss");},520);
+          fb.className="fixfb no";fb.textContent="✗ 這一行沒問題，再找找。";}
+      };
+      code.appendChild(row);
+    });
+    function showPick(){
+      var order=cf.fixes.map(function(f){return{t:f[0],ok:!!f[1]};});
+      for(var k=order.length-1;k>0;k--){var j=Math.floor(Math.random()*(k+1)),tmp=order[k];order[k]=order[j];order[j]=tmp;}
+      var html='<div class="q">🔧 這一行該怎麼改才真正安全？點一個：</div>';pick.innerHTML=html;
+      order.forEach(function(o){var b=document.createElement("div");b.className="fixcard";b.setAttribute("data-ok",o.ok?"1":"0");
+        b.innerHTML='<code>'+fmtcode(o.t)+'</code>';
+        b.onclick=function(){
+          if(pick.classList.contains("done"))return;
+          if(o.ok){pick.classList.add("done");b.classList.add("ok");
+            fb.className="fixfb ok";fb.textContent="✓ 正確！正在套用這個修法…";setTimeout(function(){wrap.hidden=true;onCorrect();},550);}
+          else{b.classList.add("wrong");fb.className="fixfb no";fb.textContent="✗ 這個改法擋不住這種攻擊，再想想。";}
+        };
+        pick.appendChild(b);});
+      pick.hidden=false;
+    }
+  }
   window.vulnUI={
-    found:function(stepHTML){var a=document.getElementById("ph1"),b=document.getElementById("ph2"),f=document.getElementById("fix");
-      if(a)a.className="phase done";if(b)b.className="phase active";if(f)f.hidden=false;show("step",stepHTML);},
+    found:function(stepHTML){var a=document.getElementById("ph1"),b=document.getElementById("ph2");
+      if(a)a.className="phase done";if(b)b.className="phase active";show("step",stepHTML);
+      var wrap=document.getElementById("fixwrap");
+      if(wrap&&window.CODEFIX&&window.CODEFIX.lines){renderCodeFix(wrap,window.CODEFIX,function(){var f=document.getElementById("fix");if(f)f.click();});}
+      else{var f=document.getElementById("fix");if(f)f.hidden=false;}},
     fixApplied:function(modeText,stepHTML){var m=document.getElementById("mode"),f=document.getElementById("fix");
       if(m){m.className="modebar safe";m.innerHTML=modeText;}if(f)f.hidden=true;show("step",stepHTML);},
     verified:function(stepHTML){var b=document.getElementById("ph2");if(b)b.className="phase done";show("step",stepHTML);markSolved();}
   };
+})();

@@ -178,3 +178,10 @@ footer .mono{font-size:.72rem}
 .hintbox .hl{flex:none;font-weight:800;color:var(--warn);font-size:.82rem}
 .hintbox code{background:rgba(255,255,255,.07);padding:1px 6px;border-radius:5px;font-family:'JetBrains Mono',monospace;font-size:.86em}
 .donebadge{display:inline-block;background:rgba(54,211,153,.12);border:1px solid var(--accent);color:var(--accent);font-weight:700;border-radius:999px;padding:7px 16px;font-size:.92rem;margin:4px 0 2px}
+.cmt{color:#ff6b6b}
+.fixcard code .cmt{color:#ff8080}
+.exbox{background:rgba(54,211,153,.06);border:1px solid var(--line);border-left:3px solid var(--accent);border-radius:10px;padding:12px 15px;margin:10px 0}
+.exbox .exl{display:inline-block;font-weight:800;color:var(--accent);font-size:.84rem;margin-bottom:4px}
+.exbox .extx{font-size:.9rem;line-height:1.75;color:var(--fg)}
+.exbox code{background:rgba(255,255,255,.08);padding:1px 6px;border-radius:5px;font-family:'JetBrains Mono',monospace;font-size:.86em;color:#ffd79a}
+.exbox b{color:var(--accent)}
