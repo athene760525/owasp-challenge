@@ -177,3 +177,4 @@ footer .mono{font-size:.72rem}
 .hintbox{display:flex;gap:10px;align-items:baseline;background:rgba(240,180,41,.08);border:1px dashed var(--warn);border-radius:9px;padding:10px 14px;margin:10px 0;font-size:.9rem;line-height:1.65;color:var(--fg)}
 .hintbox .hl{flex:none;font-weight:800;color:var(--warn);font-size:.82rem}
 .hintbox code{background:rgba(255,255,255,.07);padding:1px 6px;border-radius:5px;font-family:'JetBrains Mono',monospace;font-size:.86em}
+.donebadge{display:inline-block;background:rgba(54,211,153,.12);border:1px solid var(--accent);color:var(--accent);font-weight:700;border-radius:999px;padding:7px 16px;font-size:.92rem;margin:4px 0 2px}

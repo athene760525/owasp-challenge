@@ -1,4 +1,4 @@
-/* OWASP Top 10 CTF — 兩階段(找漏洞→修漏洞)。網頁只負責動手,詳細修復說明在簡報。 */
+/* OWASP Top 10 資安實作 — 兩階段(找漏洞→修漏洞)。網頁只負責動手,詳細修復說明在簡報。 */
 (function(){
   "use strict";
   window.LEVELS=[

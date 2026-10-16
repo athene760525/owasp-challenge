@@ -3,21 +3,21 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>A07 Authentication Failures · OWASP Top 10 CTF</title>
+<title>A07 Authentication Failures · OWASP Top 10 資安實作</title>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&family=JetBrains+Mono:wght@400;500;700&display=swap">
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
 <header><div class="wrap"><div class="hbar">
-  <a class="brand" href="index.html" style="color:inherit"><span class="dot"></span>OWASP Top 10 CTF<small>A07</small></a>
+  <a class="brand" href="index.html" style="color:inherit"><span class="dot"></span>OWASP Top 10 資安實作<small>A07</small></a>
   <div class="hspace"></div>
-  <div class="pbadge">已破關 <b id="pnum">0</b>/<span id="ptot">12</span></div>
+  <div class="pbadge">已完成 <b id="pnum">0</b>/<span id="ptot">12</span></div>
 </div></div><div class="ptrack"><div class="pfill" id="pfill"></div></div></header>
 <main class="wrap">
   <div class="lvhead"><div class="lc">A07</div><div><div class="lt">Authentication Failures</div><div class="le">認證失效</div></div></div>
-  <div class="scene"><span class="sl">情境</span><p>這是網站的登入頁。它<b>沒有「連續登入失敗就鎖定」的保護</b>，可以一直試；而管理員 admin 用的，又剛好是外流清單上最常見的那種<b>弱密碼</b>。</p></div>
-  <div class="task"><div class="tl">任務（兩階段：找漏洞 → 修漏洞）</div><p><b>① 找漏洞：</b>這個登入沒有失敗鎖定，admin 用的是常見弱密碼，用清單猜中它。<br><b>② 修漏洞：</b>讀下方<b>漏洞程式碼</b>、點出出錯的那一行、再選出正確的修法套用，再猜一次——要被擋下才算破關。</p></div>
+  <div class="scene"><span class="sl">情境</span><p>這是一個網站的登入頁。它<b>沒有登入失敗鎖定</b>，而管理員 admin 用的是常見的<b>弱密碼</b>。</p></div>
+  <div class="task"><div class="tl">任務（兩階段：找漏洞 → 修漏洞）</div><p><b>① 找漏洞：</b>這個登入沒有失敗鎖定，admin 用的是常見弱密碼，用清單猜中它。<br><b>② 修漏洞：</b>讀下方<b>漏洞程式碼</b>、點出出錯的那一行、再選出正確的修法套用，再猜一次——要被擋下才算完成。</p></div>
   <div class="phases"><div class="phase active" id="ph1"><b>STEP 1</b>找出漏洞</div><div class="phase" id="ph2"><b>STEP 2</b>修復並驗證</div></div>
   <div class="sandbox"><div class="app-title">🔐 系統登入</div>
 <div class="modebar vuln" id="mode">目前：允許弱密碼、無失敗鎖定（有漏洞）</div>
@@ -29,8 +29,8 @@
   <div class="fixwrap" id="fixwrap" hidden></div>
   <div class="stepmsg" id="step"></div>
   <div class="success" id="success">
-    <h3>✓ 挑戰成功：漏洞已修復</h3>
-    <div class="flag">FLAG{auth_f1x3d_mfa}</div>
+    <h3>✓ 完成：漏洞已修復</h3>
+    <div class="donebadge">✓ 已完成這一關：認證失效</div>
     <p>你找出了這個漏洞，並動手把它修好、驗證同樣的攻擊已經失效。詳細原理與程式碼修法見課堂簡報。</p>
     <p style="margin-top:4px">已解鎖下一關 <b>A08 Software or Data Integrity Failures</b></p>
     <div class="pagenav"><a class="btn sec" href="index.html">← 回關卡地圖</a><span class="sp"></span><a class="btn" href="a08.html">下一關 A08 Software or Data Integrity Failures →</a></div>
@@ -48,7 +48,7 @@ COMMON.forEach(function(p){var b=document.createElement("button");b.textContent=
 document.getElementById("go").onclick=function(){var out=document.getElementById("out");out.style.display="block";
  if(fixed){ out.innerHTML="<span class='leak'>登入遭拒</span>：此密碼在外洩清單中已被封鎖；連續失敗已鎖定帳號，且需通過多因素驗證(MFA)。";
    if(!verified){verified=true; vulnUI.verified("✓ <b>漏洞已修復！</b>擋弱密碼＋失敗鎖定＋MFA 之後，光靠猜常見密碼已經登不進去。");} return; }
- if(pw.value==="password"){ out.innerHTML="<span class='ok'>登入成功！歡迎 admin。</span>\n<span class='ok'>FLAG{auth_f1x3d_mfa}</span>";
+ if(pw.value==="password"){ out.innerHTML="<span class='ok'>登入成功！歡迎 admin。</span>";
    if(!found){found=true; vulnUI.found("✓ <b>找到漏洞！</b>弱密碼又沒鎖定，幾下就猜中了。<br>在下方<b>漏洞程式碼</b>點出錯誤的一行、選對修法套用，再登入一次試試。");} }
  else out.textContent="登入失敗——但系統不會鎖定你，繼續試吧…";};
 document.getElementById("fix").onclick=function(){fixed=true;

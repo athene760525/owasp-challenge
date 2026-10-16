@@ -3,27 +3,27 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>OWASP Top 10 CTF</title>
+<title>OWASP Top 10 資安實作</title>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&family=JetBrains+Mono:wght@400;500;700&display=swap">
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
 <header><div class="wrap"><div class="hbar">
-  <span class="brand"><span class="dot"></span>OWASP Top 10 CTF<small>A01–A10</small></span>
+  <span class="brand"><span class="dot"></span>OWASP Top 10 資安實作<small>A01–A10</small></span>
   <div class="hspace"></div>
-  <div class="pbadge">已破關 <b id="pnum">0</b>/<span id="ptot">12</span></div>
+  <div class="pbadge">已完成 <b id="pnum">0</b>/<span id="ptot">12</span></div>
 </div></div><div class="ptrack"><div class="pfill" id="pfill"></div></div></header>
 <main class="wrap">
   <section class="hero">
     <div class="eyebrow">找漏洞 · 動手修 · 驗證</div>
-    <h1>OWASP Top 10 闖關</h1>
-    <p>每一關都是兩階段:先<b>找出並攻破漏洞</b>,再讀出<b>有漏洞的程式碼</b>、點出錯誤行並選對修法、用<b>同一招</b>驗證攻擊已失效,才算破關。詳細修復原理與程式碼寫法回到課堂簡報。A05 注入含 SQL、指令、XSS 三關。</p>
+    <h1>OWASP Top 10 漏洞實作</h1>
+    <p>每一關都是兩階段:先<b>找出並攻破漏洞</b>,再讀出<b>有漏洞的程式碼</b>、點出錯誤行並選對修法、用<b>同一招</b>驗證攻擊已失效,才算完成。詳細修復原理與程式碼寫法回到課堂簡報。A05 注入含 SQL、指令、XSS 三關。</p>
     <div class="warnbar">⚠ 全部為教學用<b>安全模擬</b>:假資料、不連真實系統、不執行真實指令或腳本。僅供在合法授權環境中學習,請勿對未授權系統測試。</div>
   </section>
-  <div class="maphead"><h2>關卡</h2><div class="hint">破關後自動解鎖下一關</div></div>
+  <div class="maphead"><h2>關卡</h2><div class="hint">完成後自動解鎖下一關</div></div>
   <div class="grid" id="grid"></div>
-  <div class="final" id="final" hidden><h2>★ 十關全破</h2><p>你已親手找出並修復 OWASP Top 10 的每一種漏洞。回到簡報,看看它們的原理與程式碼修法。</p></div>
+  <div class="final" id="final" hidden><h2>★ 十關全部完成</h2><p>你已親手找出並修復 OWASP Top 10 的每一種漏洞。回到簡報,看看它們的原理與程式碼修法。</p></div>
 </main>
 <footer><div class="wrap"><p>對應課程:網站威脅模式與分析 · OWASP Top 10 · DVWA 實作</p>
 <p class="mono" style="margin-top:8px">安全模擬教學用途 · <button class="reset" id="resetBtn">重設進度</button></p></div></footer>
@@ -33,7 +33,7 @@ renderProgress();
 var grid=document.getElementById("grid");var GOALS=["讀出 admin 私密資料，再修好它","取得外洩的 DB 密碼，再修好它","找出後門套件，再升級修好","還原 admin 密碼，再改成安全雜湊","SQL 注入吐出全表，再改參數化修好","指令注入讀檔，再用白名單修好","XSS 彈窗，再用輸出編碼修好","用生日接管帳號，再改安全流程","猜中弱密碼，再強化認證","裝進竄改更新檔，再啟用簽章驗證","發現沒日誌，再開啟記錄告警","讓系統噴機密，再加輸入驗證"];
 function build(){var solved=LAB.solved();grid.innerHTML="";
  LEVELS.forEach(function(lv,i){var unlocked=LAB.isUnlocked(i),done=solved.has(i);
-  var st=done?"solved":(unlocked?"open":"locked");var stat=done?"✓":(unlocked?"▶":"🔒");var pill=done?"已修復":(unlocked?"可挑戰":"LOCKED");
+  var st=done?"solved":(unlocked?"open":"locked");var stat=done?"✓":(unlocked?"▶":"🔒");var pill=done?"已修復":(unlocked?"可開始":"未解鎖");
   var inner="<span class='stat'>"+stat+"</span><span class='code'>"+lv.code+"</span><span class='nm'>"+lv.nm+"</span><span class='en'>"+lv.en+"</span><span class='goal'>"+GOALS[i]+"</span><span class='pill'>"+pill+"</span>";
   var node;if(unlocked){node=document.createElement("a");node.href=lv.file;}else{node=document.createElement("div");}
   node.className="cell "+st;node.innerHTML=inner;grid.appendChild(node);});
