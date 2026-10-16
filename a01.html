@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>A01 存取控制失效 · OWASP Top 10 CTF</title>
+<title>A01 Broken Access Control · OWASP Top 10 CTF</title>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&family=JetBrains+Mono:wght@400;500;700&display=swap">
 <link rel="stylesheet" href="style.css">
@@ -15,38 +15,47 @@
   <div class="pbadge">已破關 <b id="pnum">0</b>/<span id="ptot">12</span></div>
 </div></div><div class="ptrack"><div class="pfill" id="pfill"></div></div></header>
 <main class="wrap">
-  <div class="lvhead"><div class="lc">A01</div><div><div class="lt">存取控制失效</div><div class="le">Broken Access Control</div></div></div>
-  <div class="task"><div class="tl">任務目標</div><p>下面是一個個人資料系統，你登入後只看得到自己的資料。系統用<b>網址上的 <code>uid</code></b> 決定顯示誰的資料。你的目標是：<b>想辦法讀到管理員 admin 的私密備註。</b></p></div>
-  <div class="sandbox"><div class="app-title">👤 個人資料系統</div>
-<div class="app-sub">目前登入：你（teacher，uid=1002）。</div>
-<label class="fld">網址</label>
+  <div class="lvhead"><div class="lc">A01</div><div><div class="lt">Broken Access Control</div><div class="le">存取控制失效</div></div></div>
+  <div class="task"><div class="tl">任務（兩階段：找漏洞 → 修漏洞）</div><p><b>① 找漏洞：</b>系統用網址上的 <code>uid</code> 顯示資料，想辦法讀到管理員 admin 的私密資料。<br><b>② 修漏洞：</b>按「套用修復」加入權限檢查後，再改一次別人的 uid——要被擋下才算破關。</p></div>
+  <div class="phases"><div class="phase active" id="ph1"><b>STEP 1</b>找出漏洞</div><div class="phase" id="ph2"><b>STEP 2</b>修復並驗證</div></div>
+  <div class="sandbox"><div class="app-title">👤 個人資料系統</div><div class="app-sub">目前登入：你（teacher，uid=1002）。</div>
+<div class="modebar vuln" id="mode">目前：未做權限檢查（有漏洞）</div>
 <div style="display:flex;border:1px solid var(--line);border-radius:9px;overflow:hidden;font-family:var(--font-mono)">
 <span style="background:var(--surface-2);color:var(--muted);padding:10px 2px 10px 12px;white-space:nowrap">school.edu/profile?uid=</span>
 <input id="uid" type="text" value="1002" style="border:none;border-radius:0" autocomplete="off" spellcheck="false"></div>
-<div class="btnrow"><button class="btn" id="go">查看</button></div>
+<div class="btnrow"><button class="btn" id="go">查看</button><button class="btn fix" id="fix" hidden>🔧 套用修復：加入權限檢查</button></div>
 <div class="term" id="out">［輸入 uid 後按「查看」］</div></div>
+  <div class="stepmsg" id="step"></div>
   <div class="success" id="success">
-    <h3>✓ 挑戰成功</h3>
-    <div class="flag">FLAG{idor_4cce55_c0ntr0l}</div>
-    <p>已解鎖下一關 <b>A02 安全設定錯誤</b></p>
-    <div class="pagenav"><a class="btn sec" href="index.html">← 回關卡地圖</a><span class="sp"></span><a class="btn" href="a02.html">下一關 A02 安全設定錯誤 →</a></div>
+    <h3>✓ 挑戰成功：漏洞已修復</h3>
+    <div class="flag">FLAG{access_c0ntrol_f1x3d}</div>
+    <p>你找出了這個漏洞，並動手把它修好、驗證同樣的攻擊已經失效。詳細原理與程式碼修法見課堂簡報。</p>
+    <p style="margin-top:4px">已解鎖下一關 <b>A02 Security Misconfiguration</b></p>
+    <div class="pagenav"><a class="btn sec" href="index.html">← 回關卡地圖</a><span class="sp"></span><a class="btn" href="a02.html">下一關 A02 Security Misconfiguration →</a></div>
   </div>
 </main>
 
-<footer><div class="wrap"><p>安全模擬:假資料、不執行真實指令或腳本。原理與防禦請見課堂簡報。</p></div></footer>
+<footer><div class="wrap"><p>安全模擬:假資料、不執行真實指令或腳本。詳細修復原理請見課堂簡報。</p></div></footer>
 <script src="common.js"></script>
 <script>
 renderProgress();
-(function(){ var DB={"1":{n:"admin（管理員）",r:"系統管理員",note:"<私密> root 密碼提示：FLAG{A01_final}"},
-"1001":{n:"你 Teacher",r:"老師",note:"（你的私人備註）"},"1002"{n:"王小明",r:"學生",note:"（無）"}
-"1003":{n:"張大同",r:"學生",note:"（無）"},"1004":{n:"張大同",r:"學生",note:"（無）"}};
+(function(){ var fixed=false,found=false,verified=false;
+var DB={"1":{n:"admin（管理員）",r:"系統管理員",note:"<私密> root 密碼提示：FLAG{access_c0ntrol_f1x3d}"},"1001":{n:"王小明",r:"學生",note:"（無）"},"1002":{n:"你 Teacher",r:"老師",note:"（你的私人備註）"}};
 function esc(s){return s.replace(/[&<>]/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;"}[c];});}
 document.getElementById("go").onclick=function(){
- var id=document.getElementById("uid").value.trim(),d=DB[id],out=document.getElementById("out");
- if(!d){out.textContent="查無此 uid（試試別的號碼）";return;}
+ var id=document.getElementById("uid").value.trim(),out=document.getElementById("out");
+ if(fixed){
+   if(id!=="1002"){ out.innerHTML="<span class='leak'>403 Forbidden</span>：你沒有權限查看 uid="+esc(id)+" 的資料。";
+     if(!verified){verified=true; vulnUI.verified("✓ <b>漏洞已修復！</b>加入伺服器端權限檢查後，改成別人的 uid 一律被擋下（403）。");} return; }
+   out.innerHTML="uid: 1002\n姓名：你 Teacher\n身分：老師\n備註：（你的私人備註）"; return;
+ }
+ var d=DB[id]; if(!d){out.textContent="查無此 uid（試試別的號碼）";return;}
  out.innerHTML="uid: "+esc(id)+"\n姓名："+esc(d.n)+"\n身分："+esc(d.r)+"\n備註："+esc(d.note);
- if(id==="1") markSolved();
-}; })();
+ if(id==="1"&&!found){found=true; vulnUI.found("✓ <b>找到漏洞！</b>只改網址 uid 就讀到了 admin 的私密資料。<br>按下方 <b>🔧 套用修復</b> 加入權限檢查，再改一次別人的 uid 試試。");}
+};
+document.getElementById("fix").onclick=function(){fixed=true;
+ vulnUI.fixApplied("目前：已加入伺服器端權限檢查（已修復）","已修復。把 uid 改成 <code>1</code>（或任何非 1002）再查一次，看看還能不能看到別人的資料。");
+ document.getElementById("uid").focus();}; })();
 </script>
 </body>
 </html>

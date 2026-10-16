@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>A05·3 注入：XSS · OWASP Top 10 CTF</title>
+<title>A05·3 Reflected XSS · OWASP Top 10 CTF</title>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&family=JetBrains+Mono:wght@400;500;700&display=swap">
 <link rel="stylesheet" href="style.css">
@@ -15,32 +15,40 @@
   <div class="pbadge">已破關 <b id="pnum">0</b>/<span id="ptot">12</span></div>
 </div></div><div class="ptrack"><div class="pfill" id="pfill"></div></div></header>
 <main class="wrap">
-  <div class="lvhead"><div class="lc">A05·3</div><div><div class="lt">注入：XSS</div><div class="le">Reflected XSS</div></div></div>
-  <div class="task"><div class="tl">任務目標</div><p>下面這個「訪客留言」會把你輸入的內容<b>原封不動顯示</b>在頁面上。你的目標是：<b>想辦法讓這個頁面「彈出一個警告視窗」</b>——讓你的輸入被瀏覽器當成程式碼執行。</p></div>
+  <div class="lvhead"><div class="lc">A05·3</div><div><div class="lt">Reflected XSS</div><div class="le">注入攻擊：XSS</div></div></div>
+  <div class="task"><div class="tl">任務（兩階段：找漏洞 → 修漏洞）</div><p><b>① 找漏洞：</b>這個留言會原封不動顯示你的輸入，想辦法讓頁面<b>彈出警告視窗</b>。<br><b>② 修漏洞：</b>按「套用修復」開啟輸出編碼，再送一次同樣的 payload——要只顯示文字、不再彈窗才算破關。</p></div>
+  <div class="phases"><div class="phase active" id="ph1"><b>STEP 1</b>找出漏洞</div><div class="phase" id="ph2"><b>STEP 2</b>修復並驗證</div></div>
   <div class="sandbox"><div class="app-title">💬 訪客留言板</div>
+<div class="modebar vuln" id="mode">目前：輸入直接當 HTML 顯示（有漏洞）</div>
 <label class="fld">你的留言</label><input id="msg" type="text" value="Hello" autocomplete="off" spellcheck="false">
-<div class="btnrow"><button class="btn" id="go">送出留言</button></div>
-<div style="font-size:.78rem;color:var(--muted);margin-top:12px">頁面顯示：</div>
-<div class="reflect" id="reflect">（留言會顯示在這裡）</div></div>
+<div class="btnrow"><button class="btn" id="go">送出留言</button><button class="btn fix" id="fix" hidden>🔧 套用修復：開啟輸出編碼</button></div>
+<div style="font-size:.78rem;color:var(--muted);margin-top:12px">頁面顯示：</div><div class="reflect" id="reflect">（留言會顯示在這裡）</div></div>
+  <div class="stepmsg" id="step"></div>
   <div class="success" id="success">
-    <h3>✓ 挑戰成功</h3>
-    <div class="flag">FLAG{x55_scr1pt_r3fl3ct3d}</div>
-    <p>已解鎖下一關 <b>A06 不安全設計</b></p>
-    <div class="pagenav"><a class="btn sec" href="index.html">← 回關卡地圖</a><span class="sp"></span><a class="btn" href="a06.html">下一關 A06 不安全設計 →</a></div>
+    <h3>✓ 挑戰成功：漏洞已修復</h3>
+    <div class="flag">FLAG{xss_f1x3d_encoded}</div>
+    <p>你找出了這個漏洞，並動手把它修好、驗證同樣的攻擊已經失效。詳細原理與程式碼修法見課堂簡報。</p>
+    <p style="margin-top:4px">已解鎖下一關 <b>A06 Insecure Design</b></p>
+    <div class="pagenav"><a class="btn sec" href="index.html">← 回關卡地圖</a><span class="sp"></span><a class="btn" href="a06.html">下一關 A06 Insecure Design →</a></div>
   </div>
 </main>
-<div class="xsspop" id="xsspop"><div class="box"><div class="bar">⚠ 此網頁顯示</div>
-<div class="body" id="xssmsg"></div><div class="foot"><button id="xssok">確定</button></div></div></div>
-<footer><div class="wrap"><p>安全模擬:假資料、不執行真實指令或腳本。原理與防禦請見課堂簡報。</p></div></footer>
+<div class="xsspop" id="xsspop"><div class="box"><div class="bar">⚠ 此網頁顯示</div><div class="body" id="xssmsg"></div><div class="foot"><button id="xssok">確定</button></div></div></div>
+<footer><div class="wrap"><p>安全模擬:假資料、不執行真實指令或腳本。詳細修復原理請見課堂簡報。</p></div></footer>
 <script src="common.js"></script>
 <script>
 renderProgress();
-(function(){ var msg=document.getElementById("msg"),reflect=document.getElementById("reflect"),pop=document.getElementById("xsspop"),xm=document.getElementById("xssmsg");
+(function(){ var fixed=false,found=false,verified=false;
+var msg=document.getElementById("msg"),reflect=document.getElementById("reflect"),pop=document.getElementById("xsspop"),xm=document.getElementById("xssmsg");
 function esc(s){return s.replace(/[&<>"']/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c];});}
 var XSS=/<script\b|on(error|load|mouseover|click|focus)\s*=|<svg\b|<img\b[\s\S]*on\w+|<iframe\b|javascript:/i;
-function pm(v){var m=v.match(/alert\s*\(\s*(['\"])([\s\S]*?)\1\s*\)/i);if(m)return esc(m[2]);if(/document\.cookie/i.test(v))return "PHPSESSID=9b2c4f1a7e; security=low";return "XSS";}
-document.getElementById("go").onclick=function(){var v=msg.value;reflect.textContent=v;if(XSS.test(v)){xm.textContent=pm(v);pop.classList.add("show");}};
-document.getElementById("xssok").onclick=function(){pop.classList.remove("show");markSolved();}; })();
+function pm(v){var m=v.match(/alert\s*\(\s*(['"])([\s\S]*?)\1\s*\)/i);if(m)return esc(m[2]);if(/document\.cookie/i.test(v))return "PHPSESSID=9b2c4f1a7e";return "XSS";}
+document.getElementById("go").onclick=function(){var v=msg.value;reflect.textContent=v;
+ if(XSS.test(v)){ if(fixed){ if(!verified){verified=true; vulnUI.verified("✓ <b>漏洞已修復！</b>開啟輸出編碼後，同樣的 payload 只被當成文字顯示，不再執行、不再彈窗。");} return; }
+   xm.textContent=pm(v);pop.classList.add("show"); }};
+document.getElementById("xssok").onclick=function(){pop.classList.remove("show");
+ if(!found){found=true; vulnUI.found("✓ <b>找到漏洞！</b>你的輸入被當成程式碼執行、彈出了視窗。<br>按 <b>🔧 套用修復</b>，再送一次同樣的 payload。");}};
+document.getElementById("fix").onclick=function(){fixed=true;
+ vulnUI.fixApplied("目前：輸出時做編碼／跳脫（已修復）","已開啟輸出編碼。把剛剛的 <code>&lt;script&gt;alert(1)&lt;/script&gt;</code> 再送一次，看看還會不會彈窗。");}; })();
 </script>
 </body>
 </html>

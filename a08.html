@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>A08 完整性失效 · OWASP Top 10 CTF</title>
+<title>A08 Software or Data Integrity Failures · OWASP Top 10 CTF</title>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&family=JetBrains+Mono:wght@400;500;700&display=swap">
 <link rel="stylesheet" href="style.css">
@@ -15,32 +15,43 @@
   <div class="pbadge">已破關 <b id="pnum">0</b>/<span id="ptot">12</span></div>
 </div></div><div class="ptrack"><div class="pfill" id="pfill"></div></div></header>
 <main class="wrap">
-  <div class="lvhead"><div class="lc">A08</div><div><div class="lt">完整性失效</div><div class="le">Software / Data Integrity Failures</div></div></div>
-  <div class="task"><div class="tl">任務目標</div><p>系統的自動更新會下載檔案並<b>直接安裝，完全不驗證數位簽章</b>。官方公布的雜湊值在下方。你的目標是：<b>讓系統安裝一個雜湊值對不上的（被動過手腳的）更新檔。</b></p></div>
+  <div class="lvhead"><div class="lc">A08</div><div><div class="lt">Software or Data Integrity Failures</div><div class="le">軟體或資料完整性失效</div></div></div>
+  <div class="task"><div class="tl">任務（兩階段：找漏洞 → 修漏洞）</div><p><b>① 找漏洞：</b>系統更新不驗證簽章，讓它安裝一個雜湊對不上的（被竄改的）更新檔。<br><b>② 修漏洞：</b>按「套用修復」啟用簽章驗證，再裝一次竄改檔——要被拒絕才算破關。</p></div>
+  <div class="phases"><div class="phase active" id="ph1"><b>STEP 1</b>找出漏洞</div><div class="phase" id="ph2"><b>STEP 2</b>修復並驗證</div></div>
   <div class="sandbox"><div class="app-title">⬇️ 系統自動更新</div>
-<div class="app-sub">官方公布雜湊 (SHA-256)：<code>a1b2c3…official</code></div>
+<div class="modebar vuln" id="mode">目前：安裝前不驗證簽章（有漏洞）</div>
+<div class="app-sub">官方雜湊：<code>a1b2c3…official</code></div>
 <div class="filelist" style="margin-top:12px">
-<li><span class="fi">📦</span><button id="a">update_v2.1.bin　（雜湊：a1b2c3…official ✓ 相符）</button></li>
-<li class="danger-row"><span class="fi">📦</span><button id="b">update_v2.1.bin　（雜湊：9f9f9f…tampered ✗ 不符）</button></li></div>
+<li><span class="fi">📦</span><button id="a">update_v2.1.bin　（雜湊 a1b2c3…official ✓ 相符）</button></li>
+<li class="danger-row"><span class="fi">📦</span><button id="b">update_v2.1.bin　（雜湊 9f9f9f…tampered ✗ 不符）</button></li></div>
+<div class="btnrow"><button class="btn fix" id="fix" hidden>🔧 套用修復：啟用數位簽章驗證</button></div>
 <div class="term" id="out" style="display:none"></div></div>
+  <div class="stepmsg" id="step"></div>
   <div class="success" id="success">
-    <h3>✓ 挑戰成功</h3>
-    <div class="flag">FLAG{1ntegr1ty_n0_s1gn4tur3}</div>
-    <p>已解鎖下一關 <b>A09 記錄與警示失效</b></p>
-    <div class="pagenav"><a class="btn sec" href="index.html">← 回關卡地圖</a><span class="sp"></span><a class="btn" href="a09.html">下一關 A09 記錄與警示失效 →</a></div>
+    <h3>✓ 挑戰成功：漏洞已修復</h3>
+    <div class="flag">FLAG{1ntegr1ty_f1x3d_s1gn}</div>
+    <p>你找出了這個漏洞，並動手把它修好、驗證同樣的攻擊已經失效。詳細原理與程式碼修法見課堂簡報。</p>
+    <p style="margin-top:4px">已解鎖下一關 <b>A09 Security Logging and Alerting Failures</b></p>
+    <div class="pagenav"><a class="btn sec" href="index.html">← 回關卡地圖</a><span class="sp"></span><a class="btn" href="a09.html">下一關 A09 Security Logging and Alerting Failures →</a></div>
   </div>
 </main>
 
-<footer><div class="wrap"><p>安全模擬:假資料、不執行真實指令或腳本。原理與防禦請見課堂簡報。</p></div></footer>
+<footer><div class="wrap"><p>安全模擬:假資料、不執行真實指令或腳本。詳細修復原理請見課堂簡報。</p></div></footer>
 <script src="common.js"></script>
 <script>
 renderProgress();
-(function(){ var out=document.getElementById("out");
+(function(){ var fixed=false,found=false,verified=false;var out=document.getElementById("out");
 function inst(t){out.style.display="block";
- if(t){out.innerHTML="下載中…\n安裝中…（系統未驗證簽章）\n<span class='leak'>⚠ 雖然雜湊對不上，系統仍照樣安裝了被竄改的更新檔。</span>\n<span class='ok'>FLAG{1ntegr1ty_n0_s1gn4tur3}</span>";markSolved();}
- else{out.textContent="安裝完成。但危險的是：就算換成雜湊不符的竄改版，系統也會照裝——試試另一個。";}}
+ if(fixed){ if(t){ out.innerHTML="<span class='leak'>簽章驗證失敗，已拒絕安裝</span>：這個更新檔的雜湊與官方不符、來源無法驗證。";
+     if(!verified){verified=true; vulnUI.verified("✓ <b>漏洞已修復！</b>啟用簽章驗證後，雜湊對不上的竄改檔會被拒絕安裝。");} }
+   else out.innerHTML="<span class='ok'>簽章驗證通過，安裝完成。</span>"; return; }
+ if(t){ out.innerHTML="下載中…安裝中…（未驗證簽章）\n<span class='leak'>⚠ 雜湊對不上，系統仍照樣安裝了被竄改的更新檔。</span>\n<span class='ok'>FLAG{1ntegr1ty_f1x3d_s1gn}</span>";
+   if(!found){found=true; vulnUI.found("✓ <b>找到漏洞！</b>不驗證就安裝，竄改檔也照裝。<br>按 <b>🔧 套用修復</b>，再裝一次竄改檔試試。");} }
+ else out.textContent="安裝完成。但危險的是：就算雜湊不符也照裝——試試另一個。";}
 document.getElementById("a").onclick=function(){inst(false);};
-document.getElementById("b").onclick=function(){inst(true);}; })();
+document.getElementById("b").onclick=function(){inst(true);};
+document.getElementById("fix").onclick=function(){fixed=true;
+ vulnUI.fixApplied("目前：安裝前驗證數位簽章（已修復）","已啟用簽章驗證。再點下面那個「雜湊不符」的竄改檔安裝一次。");}; })();
 </script>
 </body>
 </html>

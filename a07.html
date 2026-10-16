@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>A07 認證失效 · OWASP Top 10 CTF</title>
+<title>A07 Authentication Failures · OWASP Top 10 CTF</title>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&family=JetBrains+Mono:wght@400;500;700&display=swap">
 <link rel="stylesheet" href="style.css">
@@ -15,35 +15,42 @@
   <div class="pbadge">已破關 <b id="pnum">0</b>/<span id="ptot">12</span></div>
 </div></div><div class="ptrack"><div class="pfill" id="pfill"></div></div></header>
 <main class="wrap">
-  <div class="lvhead"><div class="lc">A07</div><div><div class="lt">認證失效</div><div class="le">Authentication Failures</div></div></div>
-  <div class="task"><div class="tl">任務目標</div><p>這個登入系統<b>沒有任何失敗鎖定</b>，而且 admin 用的是很常見的弱密碼。你的目標是：<b>在不知道密碼的情況下，登入 admin 帳號。</b>（下方有一份常見密碼清單可以試。）</p></div>
+  <div class="lvhead"><div class="lc">A07</div><div><div class="lt">Authentication Failures</div><div class="le">認證失效</div></div></div>
+  <div class="task"><div class="tl">任務（兩階段：找漏洞 → 修漏洞）</div><p><b>① 找漏洞：</b>這個登入沒有失敗鎖定，admin 用的是常見弱密碼，用清單猜中它。<br><b>② 修漏洞：</b>按「套用修復」擋弱密碼＋失敗鎖定＋MFA，再猜一次——要被擋下才算破關。</p></div>
+  <div class="phases"><div class="phase active" id="ph1"><b>STEP 1</b>找出漏洞</div><div class="phase" id="ph2"><b>STEP 2</b>修復並驗證</div></div>
   <div class="sandbox"><div class="app-title">🔐 系統登入</div>
+<div class="modebar vuln" id="mode">目前：允許弱密碼、無失敗鎖定（有漏洞）</div>
 <label class="fld">帳號</label><input id="user" type="text" value="admin" readonly>
 <label class="fld">密碼</label><input id="pw" type="text" placeholder="輸入或點下方清單" autocomplete="off">
-<div class="app-sub" style="margin-top:8px">常見密碼清單：</div>
-<div class="pwlist" id="list"></div>
-<div class="btnrow"><button class="btn" id="go">登入</button></div>
-<div class="attempts">嘗試次數：<span id="cnt">0</span>（無上限）</div>
+<div class="app-sub" style="margin-top:8px">常見密碼清單：</div><div class="pwlist" id="list"></div>
+<div class="btnrow"><button class="btn" id="go">登入</button><button class="btn fix" id="fix" hidden>🔧 套用修復：擋弱密碼＋失敗鎖定＋MFA</button></div>
 <div class="term" id="out" style="display:none"></div></div>
+  <div class="stepmsg" id="step"></div>
   <div class="success" id="success">
-    <h3>✓ 挑戰成功</h3>
-    <div class="flag">FLAG{w3ak_p4ssw0rd_brut3}</div>
-    <p>已解鎖下一關 <b>A08 完整性失效</b></p>
-    <div class="pagenav"><a class="btn sec" href="index.html">← 回關卡地圖</a><span class="sp"></span><a class="btn" href="a08.html">下一關 A08 完整性失效 →</a></div>
+    <h3>✓ 挑戰成功：漏洞已修復</h3>
+    <div class="flag">FLAG{auth_f1x3d_mfa}</div>
+    <p>你找出了這個漏洞，並動手把它修好、驗證同樣的攻擊已經失效。詳細原理與程式碼修法見課堂簡報。</p>
+    <p style="margin-top:4px">已解鎖下一關 <b>A08 Software or Data Integrity Failures</b></p>
+    <div class="pagenav"><a class="btn sec" href="index.html">← 回關卡地圖</a><span class="sp"></span><a class="btn" href="a08.html">下一關 A08 Software or Data Integrity Failures →</a></div>
   </div>
 </main>
 
-<footer><div class="wrap"><p>安全模擬:假資料、不執行真實指令或腳本。原理與防禦請見課堂簡報。</p></div></footer>
+<footer><div class="wrap"><p>安全模擬:假資料、不執行真實指令或腳本。詳細修復原理請見課堂簡報。</p></div></footer>
 <script src="common.js"></script>
 <script>
 renderProgress();
-(function(){ var COMMON=["123456","admin","qwerty","letmein","password","iloveyou","000000","abc123"];
-var list=document.getElementById("list"),pw=document.getElementById("pw"),cnt=0;
+(function(){ var fixed=false,found=false,verified=false;
+var COMMON=["123456","admin","qwerty","letmein","password","iloveyou","000000","abc123"];
+var list=document.getElementById("list"),pw=document.getElementById("pw");
 COMMON.forEach(function(p){var b=document.createElement("button");b.textContent=p;b.onclick=function(){pw.value=p;};list.appendChild(b);});
-document.getElementById("go").onclick=function(){cnt++;document.getElementById("cnt").textContent=cnt;
- var out=document.getElementById("out");out.style.display="block";
- if(pw.value==="password"){out.innerHTML="<span class='ok'>登入成功！歡迎 admin。</span>\n<span class='ok'>FLAG{w3ak_p4ssw0rd_brut3}</span>";markSolved();}
- else{out.textContent="登入失敗——但系統不會鎖定你，繼續試吧…";}}; })();
+document.getElementById("go").onclick=function(){var out=document.getElementById("out");out.style.display="block";
+ if(fixed){ out.innerHTML="<span class='leak'>登入遭拒</span>：此密碼在外洩清單中已被封鎖；連續失敗已鎖定帳號，且需通過多因素驗證(MFA)。";
+   if(!verified){verified=true; vulnUI.verified("✓ <b>漏洞已修復！</b>擋弱密碼＋失敗鎖定＋MFA 之後，光靠猜常見密碼已經登不進去。");} return; }
+ if(pw.value==="password"){ out.innerHTML="<span class='ok'>登入成功！歡迎 admin。</span>\n<span class='ok'>FLAG{auth_f1x3d_mfa}</span>";
+   if(!found){found=true; vulnUI.found("✓ <b>找到漏洞！</b>弱密碼又沒鎖定，幾下就猜中了。<br>按 <b>🔧 套用修復</b>，再登入一次試試。");} }
+ else out.textContent="登入失敗——但系統不會鎖定你，繼續試吧…";};
+document.getElementById("fix").onclick=function(){fixed=true;
+ vulnUI.fixApplied("目前：強密碼政策＋失敗鎖定＋MFA（已修復）","已強化認證。再用 <code>password</code> 登入一次，看看還進不進得去。");}; })();
 </script>
 </body>
 </html>

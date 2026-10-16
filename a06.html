@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>A06 不安全設計 · OWASP Top 10 CTF</title>
+<title>A06 Insecure Design · OWASP Top 10 CTF</title>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&family=JetBrains+Mono:wght@400;500;700&display=swap">
 <link rel="stylesheet" href="style.css">
@@ -15,32 +15,40 @@
   <div class="pbadge">已破關 <b id="pnum">0</b>/<span id="ptot">12</span></div>
 </div></div><div class="ptrack"><div class="pfill" id="pfill"></div></div></header>
 <main class="wrap">
-  <div class="lvhead"><div class="lc">A06</div><div><div class="lt">不安全設計</div><div class="le">Insecure Design</div></div></div>
-  <div class="task"><div class="tl">任務目標</div><p>「忘記密碼」功能只問一個問題：你的生日。問題是——生日往往在公開頁面就查得到，而且可以無限次猜。你的目標是：<b>接管同事 wang_ming 的帳號（重設他的密碼）。</b></p></div>
-  <div class="sandbox"><div class="app-title">① wang_ming 的公開個人頁</div>
-<div class="btnrow"><button class="btn sec" id="view">查看個人頁</button></div>
+  <div class="lvhead"><div class="lc">A06</div><div><div class="lt">Insecure Design</div><div class="le">不安全設計</div></div></div>
+  <div class="task"><div class="tl">任務（兩階段：找漏洞 → 修漏洞）</div><p><b>① 找漏洞：</b>「忘記密碼」只問一個社群查得到的生日，又能無限次猜。用它接管 wang_ming 的帳號。<br><b>② 修漏洞：</b>按「套用修復」改成寄一次性驗證碼＋次數限制，再用生日試一次——要被擋下才算破關。</p></div>
+  <div class="phases"><div class="phase active" id="ph1"><b>STEP 1</b>找出漏洞</div><div class="phase" id="ph2"><b>STEP 2</b>修復並驗證</div></div>
+  <div class="sandbox"><div class="app-title">忘記密碼（重設 wang_ming）</div>
+<div class="modebar vuln" id="mode">目前：只用可查到的生日驗證（有漏洞）</div>
+<div class="btnrow"><button class="btn sec" id="view">查看 wang_ming 的公開個人頁</button></div>
 <div class="term" id="prof" style="display:none"></div>
-<div class="app-title" style="margin-top:16px">② 忘記密碼（重設 wang_ming）</div>
 <label class="fld">安全問題：生日 (MM/DD)</label><input id="bd" type="text" placeholder="MM/DD" autocomplete="off">
-<div class="btnrow"><button class="btn" id="go">送出重設</button></div>
+<div class="btnrow"><button class="btn" id="go">送出重設</button><button class="btn fix" id="fix" hidden>🔧 套用修復：改用 Email 驗證碼＋次數限制</button></div>
 <div class="term" id="out" style="display:none"></div></div>
+  <div class="stepmsg" id="step"></div>
   <div class="success" id="success">
-    <h3>✓ 挑戰成功</h3>
-    <div class="flag">FLAG{1nsecure_des1gn_reset}</div>
-    <p>已解鎖下一關 <b>A07 認證失效</b></p>
-    <div class="pagenav"><a class="btn sec" href="index.html">← 回關卡地圖</a><span class="sp"></span><a class="btn" href="a07.html">下一關 A07 認證失效 →</a></div>
+    <h3>✓ 挑戰成功：漏洞已修復</h3>
+    <div class="flag">FLAG{1nsec_des1gn_f1x3d}</div>
+    <p>你找出了這個漏洞，並動手把它修好、驗證同樣的攻擊已經失效。詳細原理與程式碼修法見課堂簡報。</p>
+    <p style="margin-top:4px">已解鎖下一關 <b>A07 Authentication Failures</b></p>
+    <div class="pagenav"><a class="btn sec" href="index.html">← 回關卡地圖</a><span class="sp"></span><a class="btn" href="a07.html">下一關 A07 Authentication Failures →</a></div>
   </div>
 </main>
 
-<footer><div class="wrap"><p>安全模擬:假資料、不執行真實指令或腳本。原理與防禦請見課堂簡報。</p></div></footer>
+<footer><div class="wrap"><p>安全模擬:假資料、不執行真實指令或腳本。詳細修復原理請見課堂簡報。</p></div></footer>
 <script src="common.js"></script>
 <script>
 renderProgress();
-(function(){ document.getElementById("view").onclick=function(){var p=document.getElementById("prof");p.style.display="block";
- p.textContent="姓名：王明\n興趣：籃球、攝影\n生日：03/14  🎂\n座右銘：Keep going!";};
+(function(){ var fixed=false,found=false,verified=false;
+document.getElementById("view").onclick=function(){var p=document.getElementById("prof");p.style.display="block";p.textContent="姓名：王明\n興趣：籃球、攝影\n生日：03/14 🎂";};
 document.getElementById("go").onclick=function(){var v=document.getElementById("bd").value.trim(),out=document.getElementById("out");out.style.display="block";
- if(v==="03/14"){out.innerHTML="<span class='leak'>驗證通過！wang_ming 的密碼已被你重設，帳號接管成功。</span>\n<span class='ok'>FLAG{1nsecure_des1gn_reset}</span>";markSolved();}
- else{out.textContent="生日不對，再試一次（反正沒有次數限制…）";}}; })();
+ if(fixed){ out.innerHTML="<span class='leak'>已拒絕</span>：此功能已改為寄送一次性驗證碼到本人 Email，且限制嘗試次數，無法再用生日重設。";
+   if(!verified){verified=true; vulnUI.verified("✓ <b>漏洞已修復！</b>改用一次性驗證碼＋次數限制後，光靠查得到的生日已經無法接管帳號。");} return; }
+ if(v==="03/14"){ out.innerHTML="<span class='leak'>驗證通過！wang_ming 的密碼已被你重設、帳號接管成功。</span>\n<span class='ok'>FLAG{1nsec_des1gn_f1x3d}</span>";
+   if(!found){found=true; vulnUI.found("✓ <b>找到漏洞！</b>光靠公開查得到的生日就接管了帳號。<br>按 <b>🔧 套用修復</b>，再用生日試一次。");} }
+ else out.textContent="生日不對，再試一次（反正沒有次數限制…）";};
+document.getElementById("fix").onclick=function(){fixed=true;
+ vulnUI.fixApplied("目前：一次性驗證碼＋次數限制（已修復）","已改用安全流程。再輸入生日 <code>03/14</code> 送出一次，看看還能不能重設。");}; })();
 </script>
 </body>
 </html>

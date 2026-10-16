@@ -111,3 +111,23 @@ footer{color:var(--muted);font-size:.8rem;padding:24px 0 40px;border-top:1px sol
 footer .mono{font-size:.72rem}
 .reset{background:transparent;border:none;color:var(--muted);text-decoration:underline;cursor:pointer;font-size:.78rem;font-family:inherit}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+
+/* 破關後顯示的修復與防範 */
+.fixbox{margin:14px 0 4px;display:flex;flex-direction:column;gap:10px}
+.fixbox .fx{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:12px 14px}
+.fixbox h4{margin:0 0 5px;font-size:.9rem;color:var(--accent);display:flex;gap:7px;align-items:center}
+.fixbox .fx.prevent h4{color:var(--warn)}
+.fixbox p{margin:0;font-size:.88rem;color:var(--fg);line-height:1.65}
+
+/* 兩階段:找漏洞 → 修漏洞 */
+.phases{display:flex;gap:10px;margin:14px 0}
+.phase{flex:1;border:1px solid var(--line);border-radius:10px;padding:9px 12px;font-size:.84rem;color:var(--muted);background:var(--surface)}
+.phase b{display:block;font-family:var(--font-mono);font-size:.68rem;letter-spacing:1px;margin-bottom:2px}
+.phase.active{border-color:var(--warn);color:var(--warn)}
+.phase.done{border-color:var(--accent);color:var(--accent)}
+.modebar{font-family:var(--font-mono);font-size:.8rem;padding:7px 11px;border-radius:8px;margin:0 0 12px;border:1px solid}
+.modebar.vuln{color:var(--danger);border-color:var(--danger);background:var(--danger-soft)}
+.modebar.safe{color:var(--accent);border-color:var(--accent);background:var(--accent-soft)}
+.stepmsg{border:1px solid var(--warn);background:var(--warn-soft);color:var(--warn);border-radius:10px;padding:12px 14px;margin:12px 0;display:none;font-size:.88rem}
+.stepmsg.show{display:block;animation:pop .3s ease}
+.btn.fix{background:var(--warn);color:#2a1a00}
