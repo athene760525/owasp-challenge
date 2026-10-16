@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>A07 認證失效 · OWASP Top 10 CTF</title>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&family=JetBrains+Mono:wght@400;500;700&display=swap">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header><div class="wrap"><div class="hbar">
+  <a class="brand" href="index.html" style="color:inherit"><span class="dot"></span>OWASP Top 10 CTF<small>A07</small></a>
+  <div class="hspace"></div>
+  <div class="pbadge">已破關 <b id="pnum">0</b>/<span id="ptot">12</span></div>
+</div></div><div class="ptrack"><div class="pfill" id="pfill"></div></div></header>
+<main class="wrap">
+  <div class="lvhead"><div class="lc">A07</div><div><div class="lt">認證失效</div><div class="le">Authentication Failures</div></div></div>
+  <div class="task"><div class="tl">任務目標</div><p>這個登入系統<b>沒有任何失敗鎖定</b>，而且 admin 用的是很常見的弱密碼。你的目標是：<b>在不知道密碼的情況下，登入 admin 帳號。</b>（下方有一份常見密碼清單可以試。）</p></div>
+  <div class="sandbox"><div class="app-title">🔐 系統登入</div>
+<label class="fld">帳號</label><input id="user" type="text" value="admin" readonly>
+<label class="fld">密碼</label><input id="pw" type="text" placeholder="輸入或點下方清單" autocomplete="off">
+<div class="app-sub" style="margin-top:8px">常見密碼清單：</div>
+<div class="pwlist" id="list"></div>
+<div class="btnrow"><button class="btn" id="go">登入</button></div>
+<div class="attempts">嘗試次數：<span id="cnt">0</span>（無上限）</div>
+<div class="term" id="out" style="display:none"></div></div>
+  <div class="success" id="success">
+    <h3>✓ 挑戰成功</h3>
+    <div class="flag">FLAG{w3ak_p4ssw0rd_brut3}</div>
+    <p>已解鎖下一關 <b>A08 完整性失效</b></p>
+    <div class="pagenav"><a class="btn sec" href="index.html">← 回關卡地圖</a><span class="sp"></span><a class="btn" href="a08.html">下一關 A08 完整性失效 →</a></div>
+  </div>
+</main>
+
+<footer><div class="wrap"><p>安全模擬:假資料、不執行真實指令或腳本。原理與防禦請見課堂簡報。</p></div></footer>
+<script src="common.js"></script>
+<script>
+renderProgress();
+(function(){ var COMMON=["123456","admin","qwerty","letmein","password","iloveyou","000000","abc123"];
+var list=document.getElementById("list"),pw=document.getElementById("pw"),cnt=0;
+COMMON.forEach(function(p){var b=document.createElement("button");b.textContent=p;b.onclick=function(){pw.value=p;};list.appendChild(b);});
+document.getElementById("go").onclick=function(){cnt++;document.getElementById("cnt").textContent=cnt;
+ var out=document.getElementById("out");out.style.display="block";
+ if(pw.value==="password"){out.innerHTML="<span class='ok'>登入成功！歡迎 admin。</span>\n<span class='ok'>FLAG{w3ak_p4ssw0rd_brut3}</span>";markSolved();}
+ else{out.textContent="登入失敗——但系統不會鎖定你，繼續試吧…";}}; })();
+</script>
+</body>
+</html>

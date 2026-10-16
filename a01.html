@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>A01 存取控制失效 · OWASP Top 10 CTF</title>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&family=JetBrains+Mono:wght@400;500;700&display=swap">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header><div class="wrap"><div class="hbar">
+  <a class="brand" href="index.html" style="color:inherit"><span class="dot"></span>OWASP Top 10 CTF<small>A01</small></a>
+  <div class="hspace"></div>
+  <div class="pbadge">已破關 <b id="pnum">0</b>/<span id="ptot">12</span></div>
+</div></div><div class="ptrack"><div class="pfill" id="pfill"></div></div></header>
+<main class="wrap">
+  <div class="lvhead"><div class="lc">A01</div><div><div class="lt">存取控制失效</div><div class="le">Broken Access Control</div></div></div>
+  <div class="task"><div class="tl">任務目標</div><p>下面是一個個人資料系統，你登入後只看得到自己的資料。系統用<b>網址上的 <code>uid</code></b> 決定顯示誰的資料。你的目標是：<b>想辦法讀到管理員 admin 的私密備註。</b></p></div>
+  <div class="sandbox"><div class="app-title">👤 個人資料系統</div>
+<div class="app-sub">目前登入：你（teacher，uid=1002）。</div>
+<label class="fld">網址</label>
+<div style="display:flex;border:1px solid var(--line);border-radius:9px;overflow:hidden;font-family:var(--font-mono)">
+<span style="background:var(--surface-2);color:var(--muted);padding:10px 2px 10px 12px;white-space:nowrap">school.edu/profile?uid=</span>
+<input id="uid" type="text" value="1002" style="border:none;border-radius:0" autocomplete="off" spellcheck="false"></div>
+<div class="btnrow"><button class="btn" id="go">查看</button></div>
+<div class="term" id="out">［輸入 uid 後按「查看」］</div></div>
+  <div class="success" id="success">
+    <h3>✓ 挑戰成功</h3>
+    <div class="flag">FLAG{idor_4cce55_c0ntr0l}</div>
+    <p>已解鎖下一關 <b>A02 安全設定錯誤</b></p>
+    <div class="pagenav"><a class="btn sec" href="index.html">← 回關卡地圖</a><span class="sp"></span><a class="btn" href="a02.html">下一關 A02 安全設定錯誤 →</a></div>
+  </div>
+</main>
+
+<footer><div class="wrap"><p>安全模擬:假資料、不執行真實指令或腳本。原理與防禦請見課堂簡報。</p></div></footer>
+<script src="common.js"></script>
+<script>
+renderProgress();
+(function(){ var DB={"1":{n:"admin（管理員）",r:"系統管理員",note:"<私密> root 密碼提示：FLAG{idor_4cce55_c0ntr0l}"},
+"1001":{n:"王小明",r:"學生",note:"（無）"},"1002":{n:"你 Teacher",r:"老師",note:"（你的私人備註）"}};
+function esc(s){return s.replace(/[&<>]/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;"}[c];});}
+document.getElementById("go").onclick=function(){
+ var id=document.getElementById("uid").value.trim(),d=DB[id],out=document.getElementById("out");
+ if(!d){out.textContent="查無此 uid（試試別的號碼）";return;}
+ out.innerHTML="uid: "+esc(id)+"\n姓名："+esc(d.n)+"\n身分："+esc(d.r)+"\n備註："+esc(d.note);
+ if(id==="1") markSolved();
+}; })();
+</script>
+</body>
+</html>

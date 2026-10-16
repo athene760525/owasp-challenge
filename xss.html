@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>A05·3 注入：XSS · OWASP Top 10 CTF</title>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&family=JetBrains+Mono:wght@400;500;700&display=swap">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header><div class="wrap"><div class="hbar">
+  <a class="brand" href="index.html" style="color:inherit"><span class="dot"></span>OWASP Top 10 CTF<small>A05·3</small></a>
+  <div class="hspace"></div>
+  <div class="pbadge">已破關 <b id="pnum">0</b>/<span id="ptot">12</span></div>
+</div></div><div class="ptrack"><div class="pfill" id="pfill"></div></div></header>
+<main class="wrap">
+  <div class="lvhead"><div class="lc">A05·3</div><div><div class="lt">注入：XSS</div><div class="le">Reflected XSS</div></div></div>
+  <div class="task"><div class="tl">任務目標</div><p>下面這個「訪客留言」會把你輸入的內容<b>原封不動顯示</b>在頁面上。你的目標是：<b>想辦法讓這個頁面「彈出一個警告視窗」</b>——讓你的輸入被瀏覽器當成程式碼執行。</p></div>
+  <div class="sandbox"><div class="app-title">💬 訪客留言板</div>
+<label class="fld">你的留言</label><input id="msg" type="text" value="Hello" autocomplete="off" spellcheck="false">
+<div class="btnrow"><button class="btn" id="go">送出留言</button></div>
+<div style="font-size:.78rem;color:var(--muted);margin-top:12px">頁面顯示：</div>
+<div class="reflect" id="reflect">（留言會顯示在這裡）</div></div>
+  <div class="success" id="success">
+    <h3>✓ 挑戰成功</h3>
+    <div class="flag">FLAG{x55_scr1pt_r3fl3ct3d}</div>
+    <p>已解鎖下一關 <b>A06 不安全設計</b></p>
+    <div class="pagenav"><a class="btn sec" href="index.html">← 回關卡地圖</a><span class="sp"></span><a class="btn" href="a06.html">下一關 A06 不安全設計 →</a></div>
+  </div>
+</main>
+<div class="xsspop" id="xsspop"><div class="box"><div class="bar">⚠ 此網頁顯示</div>
+<div class="body" id="xssmsg"></div><div class="foot"><button id="xssok">確定</button></div></div></div>
+<footer><div class="wrap"><p>安全模擬:假資料、不執行真實指令或腳本。原理與防禦請見課堂簡報。</p></div></footer>
+<script src="common.js"></script>
+<script>
+renderProgress();
+(function(){ var msg=document.getElementById("msg"),reflect=document.getElementById("reflect"),pop=document.getElementById("xsspop"),xm=document.getElementById("xssmsg");
+function esc(s){return s.replace(/[&<>"']/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c];});}
+var XSS=/<script\b|on(error|load|mouseover|click|focus)\s*=|<svg\b|<img\b[\s\S]*on\w+|<iframe\b|javascript:/i;
+function pm(v){var m=v.match(/alert\s*\(\s*(['\"])([\s\S]*?)\1\s*\)/i);if(m)return esc(m[2]);if(/document\.cookie/i.test(v))return "PHPSESSID=9b2c4f1a7e; security=low";return "XSS";}
+document.getElementById("go").onclick=function(){var v=msg.value;reflect.textContent=v;if(XSS.test(v)){xm.textContent=pm(v);pop.classList.add("show");}};
+document.getElementById("xssok").onclick=function(){pop.classList.remove("show");markSolved();}; })();
+</script>
+</body>
+</html>

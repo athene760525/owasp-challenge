@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>A04 加密機制失效 · OWASP Top 10 CTF</title>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&family=JetBrains+Mono:wght@400;500;700&display=swap">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header><div class="wrap"><div class="hbar">
+  <a class="brand" href="index.html" style="color:inherit"><span class="dot"></span>OWASP Top 10 CTF<small>A04</small></a>
+  <div class="hspace"></div>
+  <div class="pbadge">已破關 <b id="pnum">0</b>/<span id="ptot">12</span></div>
+</div></div><div class="ptrack"><div class="pfill" id="pfill"></div></div></header>
+<main class="wrap">
+  <div class="lvhead"><div class="lc">A04</div><div><div class="lt">加密機制失效</div><div class="le">Cryptographic Failures</div></div></div>
+  <div class="task"><div class="tl">任務目標</div><p>一個外洩的資料庫被你拿到了。它的密碼欄位「看起來」是加密過的亂碼，但其實只是用某種方式<b>編碼</b>，根本沒真正加密。你的目標是：<b>還原出 admin 的真實密碼。</b></p></div>
+  <div class="sandbox"><div class="app-title">🗄️ 外洩的 users 資料表</div>
+<table class="tbl"><thead><tr><th>帳號</th><th>password（資料庫存的值）</th></tr></thead><tbody>
+<tr><td>admin</td><td>RkxBR3tiNHNlNjRfaXNfbjB0X2VuY3J5cHQxMG59</td></tr>
+<tr><td>student_wang</td><td>MTIzNDU2</td></tr>
+<tr><td>teacher_lin</td><td>cGFzc3dvcmQ=</td></tr></tbody></table>
+<div class="app-sub" style="margin-top:14px">🔧 小工具</div>
+<label class="fld">把欄位值貼進來試著解碼</label><input id="in" type="text" placeholder="貼上上面的值" autocomplete="off" spellcheck="false">
+<div class="btnrow"><button class="btn" id="go">Base64 解碼</button></div>
+<div class="term" id="out">［貼上值後按「Base64 解碼」］</div></div>
+  <div class="success" id="success">
+    <h3>✓ 挑戰成功</h3>
+    <div class="flag">FLAG{b4se64_is_n0t_encrypt10n}</div>
+    <p>已解鎖下一關 <b>A05·1 注入：SQL</b></p>
+    <div class="pagenav"><a class="btn sec" href="index.html">← 回關卡地圖</a><span class="sp"></span><a class="btn" href="sqli.html">下一關 A05·1 注入：SQL →</a></div>
+  </div>
+</main>
+
+<footer><div class="wrap"><p>安全模擬:假資料、不執行真實指令或腳本。原理與防禦請見課堂簡報。</p></div></footer>
+<script src="common.js"></script>
+<script>
+renderProgress();
+(function(){ document.getElementById("go").onclick=function(){
+ var v=document.getElementById("in").value.trim(),out=document.getElementById("out");
+ try{var r=decodeURIComponent(escape(atob(v)));
+  out.innerHTML="解碼結果：<span class='ok'>"+r.replace(/[&<>]/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;"}[c];})+"</span>";
+  if(/FLAG\{/.test(r)) markSolved();
+ }catch(e){out.textContent="這不是有效的 Base64，解不出來。";}
+}; })();
+</script>
+</body>
+</html>

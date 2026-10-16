@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>A06 不安全設計 · OWASP Top 10 CTF</title>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&family=JetBrains+Mono:wght@400;500;700&display=swap">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header><div class="wrap"><div class="hbar">
+  <a class="brand" href="index.html" style="color:inherit"><span class="dot"></span>OWASP Top 10 CTF<small>A06</small></a>
+  <div class="hspace"></div>
+  <div class="pbadge">已破關 <b id="pnum">0</b>/<span id="ptot">12</span></div>
+</div></div><div class="ptrack"><div class="pfill" id="pfill"></div></div></header>
+<main class="wrap">
+  <div class="lvhead"><div class="lc">A06</div><div><div class="lt">不安全設計</div><div class="le">Insecure Design</div></div></div>
+  <div class="task"><div class="tl">任務目標</div><p>「忘記密碼」功能只問一個問題：你的生日。問題是——生日往往在公開頁面就查得到，而且可以無限次猜。你的目標是：<b>接管同事 wang_ming 的帳號（重設他的密碼）。</b></p></div>
+  <div class="sandbox"><div class="app-title">① wang_ming 的公開個人頁</div>
+<div class="btnrow"><button class="btn sec" id="view">查看個人頁</button></div>
+<div class="term" id="prof" style="display:none"></div>
+<div class="app-title" style="margin-top:16px">② 忘記密碼（重設 wang_ming）</div>
+<label class="fld">安全問題：生日 (MM/DD)</label><input id="bd" type="text" placeholder="MM/DD" autocomplete="off">
+<div class="btnrow"><button class="btn" id="go">送出重設</button></div>
+<div class="term" id="out" style="display:none"></div></div>
+  <div class="success" id="success">
+    <h3>✓ 挑戰成功</h3>
+    <div class="flag">FLAG{1nsecure_des1gn_reset}</div>
+    <p>已解鎖下一關 <b>A07 認證失效</b></p>
+    <div class="pagenav"><a class="btn sec" href="index.html">← 回關卡地圖</a><span class="sp"></span><a class="btn" href="a07.html">下一關 A07 認證失效 →</a></div>
+  </div>
+</main>
+
+<footer><div class="wrap"><p>安全模擬:假資料、不執行真實指令或腳本。原理與防禦請見課堂簡報。</p></div></footer>
+<script src="common.js"></script>
+<script>
+renderProgress();
+(function(){ document.getElementById("view").onclick=function(){var p=document.getElementById("prof");p.style.display="block";
+ p.textContent="姓名：王明\n興趣：籃球、攝影\n生日：03/14  🎂\n座右銘：Keep going!";};
+document.getElementById("go").onclick=function(){var v=document.getElementById("bd").value.trim(),out=document.getElementById("out");out.style.display="block";
+ if(v==="03/14"){out.innerHTML="<span class='leak'>驗證通過！wang_ming 的密碼已被你重設，帳號接管成功。</span>\n<span class='ok'>FLAG{1nsecure_des1gn_reset}</span>";markSolved();}
+ else{out.textContent="生日不對，再試一次（反正沒有次數限制…）";}}; })();
+</script>
+</body>
+</html>

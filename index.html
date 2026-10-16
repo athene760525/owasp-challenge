@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>OWASP Top 10 CTF</title>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&family=JetBrains+Mono:wght@400;500;700&display=swap">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header><div class="wrap"><div class="hbar">
+  <span class="brand"><span class="dot"></span>OWASP Top 10 CTF<small>A01–A10</small></span>
+  <div class="hspace"></div>
+  <div class="pbadge">已破關 <b id="pnum">0</b>/<span id="ptot">12</span></div>
+</div></div><div class="ptrack"><div class="pfill" id="pfill"></div></div></header>
+<main class="wrap">
+  <section class="hero">
+    <div class="eyebrow">動手破關 · 原理回簡報</div>
+    <h1>OWASP Top 10 闖關</h1>
+    <p>把十大網站漏洞做成動手挑戰。每一關只給你一個<b>任務目標</b>,沒有提示、沒有答案——自己試出攻擊方式、拿到 flag 就過關。原理與防禦回到課堂簡報討論。A05 注入含 SQL、指令、XSS 三關。</p>
+    <div class="warnbar">⚠ 全部為教學用<b>安全模擬</b>:假資料、不連真實系統、不執行真實指令或腳本。僅供在合法授權環境中學習,請勿對未授權系統測試。</div>
+  </section>
+  <div class="maphead"><h2>關卡</h2><div class="hint">破關後自動解鎖下一關</div></div>
+  <div class="grid" id="grid"></div>
+  <div class="final" id="final" hidden>
+    <h2>★ 十關全破</h2>
+    <p>你已親手走過 OWASP Top 10 的每一種漏洞。回到簡報,看看它們的原理、原始碼與防禦方式。</p>
+  </div>
+</main>
+<footer><div class="wrap"><p>對應課程:網站威脅模式與分析 · OWASP Top 10 · DVWA 實作</p>
+<p class="mono" style="margin-top:8px">安全模擬教學用途 · <button class="reset" id="resetBtn">重設進度</button></p></div></footer>
+<script src="common.js"></script>
+<script>
+renderProgress();
+var grid=document.getElementById("grid");var GOALS=["讀出管理員 admin 的私密資料","找出外洩檔案裡的資料庫密碼","找出被植入後門的套件","還原 admin 的密碼","讓系統一次吐出全部使用者","讓 Ping 工具列出主機檔案","讓頁面彈出警告視窗","接管同事 wang_ming 的帳號","猜中 admin 的密碼","安裝一個被竄改的更新檔","調查入侵，找出攻擊者","讓系統吐出內部機密"];
+function build(){var solved=LAB.solved();grid.innerHTML="";
+ LEVELS.forEach(function(lv,i){var unlocked=LAB.isUnlocked(i),done=solved.has(i);
+  var st=done?"solved":(unlocked?"open":"locked");var stat=done?"✓":(unlocked?"▶":"🔒");var pill=done?"已破關":(unlocked?"可挑戰":"LOCKED");
+  var inner="<span class='stat'>"+stat+"</span><span class='code'>"+lv.code+"</span><span class='nm'>"+lv.nm+"</span><span class='en'>"+lv.en+"</span><span class='goal'>目標:"+GOALS[i]+"</span><span class='pill'>"+pill+"</span>";
+  var node;if(unlocked){node=document.createElement("a");node.href=lv.file;}else{node=document.createElement("div");}
+  node.className="cell "+st;node.innerHTML=inner;grid.appendChild(node);});
+ document.getElementById("final").hidden=solved.size<LEVELS.length;}
+build();
+document.getElementById("resetBtn").onclick=function(){LAB.reset();renderProgress();build();window.scrollTo({top:0,behavior:"smooth"});};
+</script>
+</body>
+</html>

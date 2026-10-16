@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>A05·1 注入：SQL · OWASP Top 10 CTF</title>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&family=JetBrains+Mono:wght@400;500;700&display=swap">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header><div class="wrap"><div class="hbar">
+  <a class="brand" href="index.html" style="color:inherit"><span class="dot"></span>OWASP Top 10 CTF<small>A05·1</small></a>
+  <div class="hspace"></div>
+  <div class="pbadge">已破關 <b id="pnum">0</b>/<span id="ptot">12</span></div>
+</div></div><div class="ptrack"><div class="pfill" id="pfill"></div></div></header>
+<main class="wrap">
+  <div class="lvhead"><div class="lc">A05·1</div><div><div class="lt">注入：SQL</div><div class="le">SQL Injection</div></div></div>
+  <div class="task"><div class="tl">任務目標</div><p>下面是一個「使用者查詢」功能，正常輸入一個 ID 只會查到那一個人。你的目標是：<b>在不知道其他人 ID 的情況下，讓系統一次把「全部使用者」都吐出來。</b>下方會即時顯示系統組出的 SQL。</p></div>
+  <div class="sandbox"><div class="app-title">👤 使用者資料查詢</div>
+<label class="fld">User ID</label><input id="uid" type="text" value="1" autocomplete="off" spellcheck="false">
+<div style="margin-top:10px">系統組出的查詢指令：</div><div class="sqlbar" id="sql"></div>
+<div class="btnrow"><button class="btn" id="go">查詢</button></div><div id="result"></div></div>
+  <div class="success" id="success">
+    <h3>✓ 挑戰成功</h3>
+    <div class="flag">FLAG{sql1_0r_1equals1}</div>
+    <p>已解鎖下一關 <b>A05·2 注入：指令</b></p>
+    <div class="pagenav"><a class="btn sec" href="index.html">← 回關卡地圖</a><span class="sp"></span><a class="btn" href="cmdi.html">下一關 A05·2 注入：指令 →</a></div>
+  </div>
+</main>
+
+<footer><div class="wrap"><p>安全模擬:假資料、不執行真實指令或腳本。原理與防禦請見課堂簡報。</p></div></footer>
+<script src="common.js"></script>
+<script>
+renderProgress();
+(function(){ var uid=document.getElementById("uid"),sql=document.getElementById("sql"),result=document.getElementById("result");
+var USERS=[["1","admin","admin"],["2","Gordon","Brown"],["3","Hack","Me"],["4","Pablo","Picasso"],["5","Bob","Smith"]];
+function esc(s){return s.replace(/[&<>]/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;"}[c];});}
+function rs(){sql.innerHTML="SELECT first_name, last_name FROM users WHERE user_id = '<b>"+esc(uid.value)+"</b>';";}
+uid.oninput=rs;rs();
+function table(rows){var h="<table class='tbl'><thead><tr><th>ID</th><th>First name</th><th>Surname</th></tr></thead><tbody>";
+ rows.forEach(function(r){h+="<tr><td>"+r[0]+"</td><td>"+esc(r[1])+"</td><td>"+esc(r[2])+"</td></tr>";});return h+"</tbody></table>";}
+function inj(v){if(v.indexOf("'")<0&&v.indexOf('"')<0)return false;return /\bor\b[\s\S]*=/i.test(v)||/--|#/.test(v);}
+document.getElementById("go").onclick=function(){rs();var v=uid.value.trim();
+ if(inj(v)){result.innerHTML="<div style='margin-top:10px;color:var(--danger);font-family:var(--font-mono);font-size:.82rem'>⚠ 查詢回傳 "+USERS.length+" 筆（整張表）</div>"+table(USERS);markSolved();}
+ else if(/^\d+$/.test(v)){var row=USERS.filter(function(r){return r[0]===v;});
+  result.innerHTML=row.length?table(row):"<div style='margin-top:10px;color:var(--muted);font-family:var(--font-mono);font-size:.82rem'>查無此 ID。</div>";}
+ else{result.innerHTML="<div style='margin-top:10px;color:var(--muted);font-family:var(--font-mono);font-size:.82rem'>查無資料。</div>";}
+}; })();
+</script>
+</body>
+</html>

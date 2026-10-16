@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>A10 例外處理不當 · OWASP Top 10 CTF</title>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&family=JetBrains+Mono:wght@400;500;700&display=swap">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header><div class="wrap"><div class="hbar">
+  <a class="brand" href="index.html" style="color:inherit"><span class="dot"></span>OWASP Top 10 CTF<small>A10</small></a>
+  <div class="hspace"></div>
+  <div class="pbadge">已破關 <b id="pnum">0</b>/<span id="ptot">12</span></div>
+</div></div><div class="ptrack"><div class="pfill" id="pfill"></div></div></header>
+<main class="wrap">
+  <div class="lvhead"><div class="lc">A10</div><div><div class="lt">例外處理不當</div><div class="le">Mishandling of Exceptional Conditions</div></div></div>
+  <div class="task"><div class="tl">任務目標</div><p>報名系統要你輸入人數，程式只預期你乖乖填數字。你的目標是：<b>填入「不正常」的值，讓系統出錯、吐出它的內部機密（路徑、資料庫位址…）。</b></p></div>
+  <div class="sandbox"><div class="app-title">📝 活動報名</div>
+<label class="fld">報名人數</label><input id="n" type="text" value="2" autocomplete="off">
+<div class="btnrow"><button class="btn" id="go">送出</button></div>
+<div class="app-sub" style="margin-top:6px">試試看填：文字、負數、或超大的數字</div>
+<div class="term" id="out" style="display:none"></div></div>
+  <div class="success" id="success">
+    <h3>✓ 挑戰成功</h3>
+    <div class="flag">FLAG{3xc3pt10n_l34ks_s3cr3t}</div>
+    <p>十關全破!</p>
+    <div class="pagenav"><a class="btn sec" href="index.html">← 回關卡地圖</a><span class="sp"></span><a class="btn" href="index.html">全部完成，回地圖 ★</a></div>
+  </div>
+</main>
+
+<footer><div class="wrap"><p>安全模擬:假資料、不執行真實指令或腳本。原理與防禦請見課堂簡報。</p></div></footer>
+<script src="common.js"></script>
+<script>
+renderProgress();
+(function(){ document.getElementById("go").onclick=function(){var v=document.getElementById("n").value.trim(),out=document.getElementById("out"),num=Number(v);out.style.display="block";
+ if(v===""||isNaN(num)||num<0||num>9000||!Number.isInteger(num)){
+  out.innerHTML="<span class='leak'>500 Internal Server Error</span>\n  at RegistrationController.save (/app/src/controllers/reg.js:42)\n  at Database.query (/app/node_modules/db/index.js:88)\n  DB: postgres://app:<span class='ok'>FLAG{3xc3pt10n_l34ks_s3cr3t}</span>@10.0.0.5:5432/school";markSolved();}
+ else{out.textContent="報名成功："+num+" 人。（但只要改填文字或負數就會出事——試試看！）";}}; })();
+</script>
+</body>
+</html>

@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>A08 完整性失效 · OWASP Top 10 CTF</title>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&family=JetBrains+Mono:wght@400;500;700&display=swap">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header><div class="wrap"><div class="hbar">
+  <a class="brand" href="index.html" style="color:inherit"><span class="dot"></span>OWASP Top 10 CTF<small>A08</small></a>
+  <div class="hspace"></div>
+  <div class="pbadge">已破關 <b id="pnum">0</b>/<span id="ptot">12</span></div>
+</div></div><div class="ptrack"><div class="pfill" id="pfill"></div></div></header>
+<main class="wrap">
+  <div class="lvhead"><div class="lc">A08</div><div><div class="lt">完整性失效</div><div class="le">Software / Data Integrity Failures</div></div></div>
+  <div class="task"><div class="tl">任務目標</div><p>系統的自動更新會下載檔案並<b>直接安裝，完全不驗證數位簽章</b>。官方公布的雜湊值在下方。你的目標是：<b>讓系統安裝一個雜湊值對不上的（被動過手腳的）更新檔。</b></p></div>
+  <div class="sandbox"><div class="app-title">⬇️ 系統自動更新</div>
+<div class="app-sub">官方公布雜湊 (SHA-256)：<code>a1b2c3…official</code></div>
+<div class="filelist" style="margin-top:12px">
+<li><span class="fi">📦</span><button id="a">update_v2.1.bin　（雜湊：a1b2c3…official ✓ 相符）</button></li>
+<li class="danger-row"><span class="fi">📦</span><button id="b">update_v2.1.bin　（雜湊：9f9f9f…tampered ✗ 不符）</button></li></div>
+<div class="term" id="out" style="display:none"></div></div>
+  <div class="success" id="success">
+    <h3>✓ 挑戰成功</h3>
+    <div class="flag">FLAG{1ntegr1ty_n0_s1gn4tur3}</div>
+    <p>已解鎖下一關 <b>A09 記錄與警示失效</b></p>
+    <div class="pagenav"><a class="btn sec" href="index.html">← 回關卡地圖</a><span class="sp"></span><a class="btn" href="a09.html">下一關 A09 記錄與警示失效 →</a></div>
+  </div>
+</main>
+
+<footer><div class="wrap"><p>安全模擬:假資料、不執行真實指令或腳本。原理與防禦請見課堂簡報。</p></div></footer>
+<script src="common.js"></script>
+<script>
+renderProgress();
+(function(){ var out=document.getElementById("out");
+function inst(t){out.style.display="block";
+ if(t){out.innerHTML="下載中…\n安裝中…（系統未驗證簽章）\n<span class='leak'>⚠ 雖然雜湊對不上，系統仍照樣安裝了被竄改的更新檔。</span>\n<span class='ok'>FLAG{1ntegr1ty_n0_s1gn4tur3}</span>";markSolved();}
+ else{out.textContent="安裝完成。但危險的是：就算換成雜湊不符的竄改版，系統也會照裝——試試另一個。";}}
+document.getElementById("a").onclick=function(){inst(false);};
+document.getElementById("b").onclick=function(){inst(true);}; })();
+</script>
+</body>
+</html>
