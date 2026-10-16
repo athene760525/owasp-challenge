@@ -131,3 +131,26 @@ footer .mono{font-size:.72rem}
 .stepmsg{border:1px solid var(--warn);background:var(--warn-soft);color:var(--warn);border-radius:10px;padding:12px 14px;margin:12px 0;display:none;font-size:.88rem}
 .stepmsg.show{display:block;animation:pop .3s ease}
 .btn.fix{background:var(--warn);color:#2a1a00}
+
+/* 修復選擇題 */
+.fixwrap{border:1px solid var(--warn);background:var(--warn-soft);border-radius:12px;padding:14px 16px;margin:12px 0}
+.fixwrap .q{font-weight:700;color:var(--warn);margin-bottom:8px;font-size:.9rem}
+.fixopt{display:block;padding:9px 11px;border:1px solid var(--line);border-radius:8px;margin:6px 0;background:var(--surface);cursor:pointer;font-size:.88rem;color:var(--fg)}
+.fixopt:hover{border-color:var(--warn)}
+.fixopt input{margin-right:8px}
+.fixfb{font-size:.86rem;margin-top:6px;min-height:1.1em;font-weight:700}
+.fixfb.ok{color:var(--accent)} .fixfb.no{color:var(--danger)}
+
+[hidden]{display:none!important}
+.dz{border:2px dashed var(--line);border-radius:10px;min-height:60px;display:flex;align-items:center;justify-content:center;padding:12px;margin:12px 0;color:var(--muted);font-size:.85rem;text-align:center;transition:border-color .15s,background .15s}
+.dz.over{border-color:var(--warn);background:rgba(240,180,41,.12);color:var(--warn)}
+.dz.ok{border-color:var(--accent);border-style:solid;background:rgba(54,211,153,.08)}
+.dz.shake{animation:shk .36s}
+@keyframes shk{0%,100%{transform:translateX(0)}20%{transform:translateX(-7px)}60%{transform:translateX(7px)}}
+.pool{display:flex;flex-direction:column;gap:9px}
+.chip{border:1px solid var(--line);background:var(--surface);border-radius:9px;padding:11px 13px;font-size:.88rem;color:var(--fg);cursor:grab;user-select:none;-webkit-user-select:none;touch-action:none}
+.chip:hover{border-color:var(--warn)}
+.chip.hold{opacity:.3}
+.chip.drag{position:fixed;z-index:9999;pointer-events:none;box-shadow:0 10px 28px rgba(0,0,0,.55);cursor:grabbing;border-color:var(--warn)}
+.chip.placed{cursor:default;border-color:var(--accent);color:var(--accent)}
+.dzhint{pointer-events:none}

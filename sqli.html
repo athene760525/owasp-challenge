@@ -16,7 +16,7 @@
 </div></div><div class="ptrack"><div class="pfill" id="pfill"></div></div></header>
 <main class="wrap">
   <div class="lvhead"><div class="lc">A05·1</div><div><div class="lt">SQL Injection</div><div class="le">注入攻擊：SQL</div></div></div>
-  <div class="task"><div class="tl">任務（兩階段：找漏洞 → 修漏洞）</div><p><b>① 找漏洞：</b>這個查詢正常只查到一人，想辦法讓它一次吐出<b>全部使用者</b>。<br><b>② 修漏洞：</b>按「套用修復」改成參數化查詢，再用<b>同一招</b>攻一次——要讓它失效才算破關。</p></div>
+  <div class="task"><div class="tl">任務（兩階段：找漏洞 → 修漏洞）</div><p><b>① 找漏洞：</b>這個查詢正常只查到一人，想辦法讓它一次吐出<b>全部使用者</b>。<br><b>② 修漏洞：</b>從下方選項<b>拖出你認為正確的修復做法</b>放進框裡套用，再用<b>同一招</b>攻一次——要讓它失效才算破關。</p></div>
   <div class="phases"><div class="phase active" id="ph1"><b>STEP 1</b>找出漏洞</div><div class="phase" id="ph2"><b>STEP 2</b>修復並驗證</div></div>
   <div class="sandbox"><div class="app-title">👤 使用者資料查詢</div>
 <div class="modebar vuln" id="mode">目前程式：字串拼接（有漏洞）</div>
@@ -24,6 +24,7 @@
 <div style="margin-top:10px">系統組出的查詢指令：</div><div class="sqlbar" id="sql"></div>
 <div class="btnrow"><button class="btn" id="go">查詢</button><button class="btn fix" id="fix" hidden>🔧 套用修復：改用參數化查詢</button></div>
 <div id="result"></div></div>
+  <div class="fixwrap" id="fixwrap" hidden></div>
   <div class="stepmsg" id="step"></div>
   <div class="success" id="success">
     <h3>✓ 挑戰成功：漏洞已修復</h3>
@@ -38,7 +39,7 @@
 <script src="common.js"></script>
 <script>
 renderProgress();
-(function(){ var fixed=false,found=false,verified=false;
+(function(){ window.FIXOPTS=[["改用參數化查詢(Prepared Statement)", 1], ["全站改用 HTTPS", 0], ["用前端 JavaScript 檢查欄位不可空白", 0], ["把 users 資料表改名", 0]]; var fixed=false,found=false,verified=false;
 var uid=document.getElementById("uid"),sql=document.getElementById("sql"),result=document.getElementById("result");
 var USERS=[["1","admin","admin"],["2","Gordon","Brown"],["3","Hack","Me"],["4","Pablo","Picasso"],["5","Bob","Smith"]];
 function esc(s){return s.replace(/[&<>]/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;"}[c];});}
@@ -50,7 +51,7 @@ function note(t){return "<div style='margin-top:10px;color:var(--muted);font-fam
 function inj(v){if(v.indexOf("'")<0&&v.indexOf('"')<0)return false;return /\bor\b[\s\S]*=/i.test(v)||/--|#/.test(v);}
 document.getElementById("go").onclick=function(){rs();var v=uid.value.trim();
  if(!fixed){ if(inj(v)){result.innerHTML="<div style='margin-top:10px;color:var(--danger);font-family:var(--font-mono);font-size:.82rem'>⚠ 回傳 "+USERS.length+" 筆（整張表）</div>"+table(USERS);
-    if(!found){found=true; vulnUI.found("✓ <b>找到漏洞！</b>永遠成立的條件讓 WHERE 失效。<br>按 <b>🔧 套用修復</b>，再用同一招攻一次。");}}
+    if(!found){found=true; vulnUI.found("✓ <b>找到漏洞！</b>永遠成立的條件讓 WHERE 失效。<br>把<b>正確的修復做法</b>拖進框裡套用，再用同一招攻一次。");}}
    else if(/^\d+$/.test(v)){var r=USERS.filter(function(x){return x[0]===v;});result.innerHTML=r.length?table(r):note("查無此 ID。");}
    else result.innerHTML=note("查無資料。");
  } else { if(/^\d+$/.test(v)){var r2=USERS.filter(function(x){return x[0]===v;});result.innerHTML=r2.length?table(r2):note("查無此 ID。");}
