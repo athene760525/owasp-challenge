@@ -37,8 +37,9 @@
 <script src="common.js"></script>
 <script>
 renderProgress();
-(function(){ var DB={"1":{n:"admin（管理員）",r:"系統管理員",note:"<私密> root 密碼提示：FLAG{idor_4cce55_c0ntr0l}"},
-"1001":{n:"王小明",r:"學生",note:"（無）"},"1002":{n:"你 Teacher",r:"老師",note:"（你的私人備註）"}};
+(function(){ var DB={"1":{n:"admin（管理員）",r:"系統管理員",note:"<私密> root 密碼提示：FLAG{A01_final}"},
+"1001":{n:"你 Teacher",r:"老師",note:"（你的私人備註）"},"1002"{n:"王小明",r:"學生",note:"（無）"}
+"1003":{n:"張大同",r:"學生",note:"（無）"},"1004":{n:"張大同",r:"學生",note:"（無）"}};
 function esc(s){return s.replace(/[&<>]/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;"}[c];});}
 document.getElementById("go").onclick=function(){
  var id=document.getElementById("uid").value.trim(),d=DB[id],out=document.getElementById("out");
